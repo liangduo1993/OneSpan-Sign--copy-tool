@@ -1,8 +1,7 @@
 package com.esignlive.copytool.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.silanis.esl.sdk.EslClient;
@@ -19,10 +18,13 @@ public class UserData {
 	
 	public static String destinationApiUrl;
 	
+	public static String destinationOwnerEmail;
+	
 	public static EslClient destinationEslClient;
 	
 	
 	public static Map<String, Sender> oldSenderList = new HashMap<>();
+	public static Map<String,String> oldEnvTemplates = new LinkedHashMap<>();//<template id, sender email>
 	
 	public static Map<String,Sender> oldAndNewSenderMap = new HashMap<>();
 	
