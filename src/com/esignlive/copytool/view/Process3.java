@@ -16,6 +16,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.TemplateService;
 
@@ -104,7 +105,7 @@ public class Process3 {
 										JOptionPane.INFORMATION_MESSAGE);
 
 								// enable error report if error occurs
-								if (errorMsg != null && !errorMsg.trim().equals("<html></html>")) {
+								if (errorMsg != null && !errorMsg.trim().equals("")) {
 									btnNewButton_2.setVisible(true);
 								}
 
@@ -122,6 +123,11 @@ public class Process3 {
 		frame.add(btnNewButton);
 
 		btnNextProcess = new JButton("Next Process");
+		btnNextProcess.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				App.setMainFrame(new Process4().getFrame());
+			}
+		});
 		btnNextProcess.setEnabled(false);
 		btnNextProcess.setBounds(512, 591, 163, 53);
 		frame.add(btnNextProcess);
@@ -196,11 +202,11 @@ public class Process3 {
 
 				scrollPane.setVisible(true);
 				btnNewButton.setVisible(true);
-				btnNewButton.setEnabled(false);
+				btnNewButton.setEnabled(true);
 				btnNextProcess.setEnabled(false);
 
 				if (UserData.oldEnvTemplates == null || UserData.oldEnvTemplates.size() == 0) {
-
+					btnNewButton.setEnabled(false);
 					// load all templates in old env
 					new Thread(new Runnable() {
 

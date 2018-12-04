@@ -184,11 +184,7 @@ public class Process2 {
 				System.out.println(errorMsg);
 
 				JTextArea ta = new JTextArea(20, 50);
-//				ta.setBounds(new Rectangle(800, 500));
 				ta.setText(errorMsg);
-//				ta.setWrapStyleWord(true);
-//				ta.setLineWrap(true);
-//				ta.setCaretPosition(0);
 				ta.setEditable(false);
 
 				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Inviting Sender Error",
@@ -259,7 +255,7 @@ public class Process2 {
 						// make panel buttons enable
 						btnNewButton_1.setEnabled(true);
 						button.setEnabled(true);
-						if (errorMsg != null && !errorMsg.trim().equals("<html></html>")) {
+						if (errorMsg != null && !errorMsg.trim().equals("")) {
 							btnNewButton_2.setVisible(true);
 							btnNewButton_2.setEnabled(true);
 						}
@@ -277,11 +273,13 @@ public class Process2 {
 
 		frame.add(btnInviteSenders);
 
-		btnNewButton = new JButton("Next Process");
+		btnNewButton = new JButton("Prepare Accounts");
 		btnNewButton.setBounds(483, 600, 162, 38);
 		btnNewButton.setEnabled(false);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				btnInviteSenders.setEnabled(false);
+
 				// set isCopySender
 				if (rdbtnYes.isSelected()) {
 					UserData.copySender = true;
@@ -289,14 +287,29 @@ public class Process2 {
 					UserData.copySender = false;
 				}
 
-				try {
-					SenderService.getInstance().setNewEnvOwnerEmail();
-				} catch (Exception ex) {
-					// to do
+				new Thread(new Runnable() {
 
-				}
+					@Override
+					public void run() {
+						try {
+							SenderService.getInstance().senderNextProcessCallback();
+							App.setMainFrame(new Process3().getFrame());
+						} catch (Exception ex) {
+							// to do
+							// show error msg, and allow try again, try again should be non effect to
+							// existing setting
+							JTextArea ta = new JTextArea(20, 50);
+							ta.setText(ex.getMessage());
+							ta.setEditable(false);
 
-				App.setMainFrame(new Process3().getFrame());
+							JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Error, Please try again!",
+									JOptionPane.ERROR_MESSAGE);
+
+							btnInviteSenders.setEnabled(true);
+						}
+					}
+				}).start();
+
 			}
 		});
 		frame.add(btnNewButton);

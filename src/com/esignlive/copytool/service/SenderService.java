@@ -1,11 +1,20 @@
 package com.esignlive.copytool.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JLabel;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.utils.SenderUtil;
@@ -79,52 +88,117 @@ public class SenderService {
 		Map<String, Sender> oldAndNewSenderMap = new LinkedHashMap<>();
 
 		StringBuilder errorMsg = new StringBuilder(200);
-//		errorMsg.append("<html>");
+		// errorMsg.append("<html>");
 
 		for (JLabel oldSenderEmail : senderEmails.keySet()) {
 			String newSenderEmail = senderEmails.get(oldSenderEmail);
-			if (newSenderEmail != null && !newSenderEmail.trim().equals("")) {	//new sender email is not null
+			if (newSenderEmail != null && !newSenderEmail.trim().equals("")) { // new sender email is not null
 				Sender sender = UserData.oldSenderList.get(oldSenderEmail.getText());
 				sender.setEmail(newSenderEmail);
 				try {
 					Sender inviteUser = destinationEslClient.getAccountService()
 							.inviteUser(SenderUtil.toAccontMember(sender));
-					result.put(oldSenderEmail, true);
+					
 					oldAndNewSenderMap.put(oldSenderEmail.getText(), inviteUser);
+					
+					try {
+						String apiKey = getApiKey(false,inviteUser.getId());
+						UserData.destinationApiKeys.put(inviteUser.getEmail(), apiKey);
+						result.put(oldSenderEmail, true);
+					}catch(Exception ex) {
+						// to do 
+						errorMsg.append(ex.getMessage()).append("\n");
+						result.put(oldSenderEmail, false);
+					}
+					
 				} catch (Exception e) {
-//					errorMsg.append(e.getMessage()).append("<br/>");
+					// errorMsg.append(e.getMessage()).append("<br/>");
 					errorMsg.append(e.getMessage()).append("\n");
 					result.put(oldSenderEmail, false);
 				}
-			}else {																//new sender email is null
-				//we consider invite successfully
+			} else { // new sender email is null
+				// we consider invite successfully
 				result.put(oldSenderEmail, true);
-				//no mapping old to new sender
+				// no mapping old to new sender
 				oldAndNewSenderMap.put(oldSenderEmail.getText(), null);
 			}
-			
+
 			view.setInvitationStatus(oldSenderEmail, result.get(oldSenderEmail));
-			
+
 		}
 
 		// return error msg
-//		errorMsg.append("</html>");
+		// errorMsg.append("</html>");
 		view.setErrorMsg(errorMsg.toString());
 
 		// set user data
 		UserData.oldAndNewSenderMap = oldAndNewSenderMap;
-		
+
 		return result;
 	}
-	
-	public void setNewEnvOwnerEmail() {
-		//set new env owner email
+
+	public void senderNextProcessCallback() {
+		// set new env owner email
 		UserData.destinationOwnerEmail = getOwnerEmail(UserData.destinationEslClient);
-		System.out.println("set dest owenr email: "  +UserData.destinationOwnerEmail);
-		
-		//set old env sender emails
-		if(UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
+		System.out.println("set dest owenr email: " + UserData.destinationOwnerEmail);
+
+		// set old env sender emails
+		if (UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
 			getOldEnvSenders();
+		}
+
+		// retreive all api keys in old env
+		Set<String> apiList = UserData.sourceApiKeys;
+		Map<String, Sender> oldSenderList = UserData.oldSenderList;
+
+		for (Sender sender : oldSenderList.values()) {
+			String apiKey;
+			try {
+				apiKey = getApiKey(true, sender.getId());
+				apiList.add(apiKey);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException("Error retrieving all senders' api key, please try again!");
+			}
+		}
+	}
+
+	public String getApiKey(boolean isSource, String senderId) throws IOException, JSONException {
+		String apiUrl = null;
+		String apiKey = null;
+		if (isSource) {
+			apiUrl = UserData.sourceApiUrl;
+			apiKey = UserData.sourceApiKey;
+		} else {
+			apiUrl = UserData.destinationApiUrl;
+			apiKey = UserData.destinationApiKey;
+		}
+
+		URL client = new URL(apiUrl + "/account/senders/" + senderId + "/apiKey");
+		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
+		conn.setRequestProperty("Content-Type", "application/json");
+		conn.setRequestProperty("Authorization", "Basic " + apiKey);
+		conn.setRequestProperty("Accept", "application/json");
+
+		int responseCode = ((HttpURLConnection) conn).getResponseCode();
+
+		if (responseCode == 200) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+
+			in.close();
+			conn.disconnect();
+
+			JSONObject json = new JSONObject(response.toString());
+			System.out.println(json.getString("apiKey"));
+			return json.getString("apiKey");
+		} else {
+			throw new RuntimeException("Request did not succeed.");
 		}
 	}
 

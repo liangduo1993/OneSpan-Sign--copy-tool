@@ -1,18 +1,7 @@
 package com.esignlive.copytool.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.view.Process3;
@@ -36,7 +25,7 @@ public class TemplateService {
 		return endpointService == null ? new TemplateService() : endpointService;
 	}
 
-	public String copyTemplateFromOldAccount(EslClient sourceClient, EslClient destClient, String oldTemplateID,
+	private String copyTemplateFromOldAccount(EslClient sourceClient, EslClient destClient, String oldTemplateID,
 			String newSenderEmail) {
 		DocumentPackage package1 = sourceClient.getPackage(new PackageId(oldTemplateID));
 
@@ -50,9 +39,17 @@ public class TemplateService {
 		package1.getSigners().remove(sender);
 
 		// download and inject document content byte[]
+		Document defaultDoc = null;
 		for (Document doc : package1.getDocuments()) {
-			doc.setFileName(doc.getName() + ".pdf");
-			doc.setContent(sourceClient.downloadDocument(new PackageId(oldTemplateID), doc.getId().getId()));
+			if(!doc.getId().toString().equals("default-consent")) {
+				doc.setFileName(doc.getName() + ".pdf");
+				doc.setContent(sourceClient.downloadDocument(new PackageId(oldTemplateID), doc.getId().getId()));
+			}else {
+				defaultDoc= doc;
+			}
+		}
+		if(defaultDoc != null) {
+			package1.getDocuments().remove(defaultDoc);
 		}
 
 		// set new sender
@@ -138,71 +135,34 @@ public class TemplateService {
 		Map<String, String> tempalteIdAndName = new LinkedHashMap<>();
 		Map<String, String> oldEnvTemplates = UserData.oldEnvTemplates;
 
-		List<String> apiList = new ArrayList<>();
-		apiList.add(UserData.sourceApiKey);
-		Map<String, Sender> oldSenderList = UserData.oldSenderList;
-		System.out.println("sender list: " + oldSenderList.values().size());
+		//old env owner
+		EslClient ownerClient = new EslClient(UserData.sourceApiKey, UserData.sourceApiUrl);
+		retrieveTemplatesCallback(ownerClient,tempalteIdAndName,oldEnvTemplates);
 		
-		for (Sender sender : oldSenderList.values()) {
-			String apiKey;
-			try {
-				apiKey = getApiKey(sender.getId());
-				apiList.add(apiKey);
-			} catch (Exception e) {
-				e.printStackTrace();
-				//to do
-				
-				
-			} 
-		}
-
-		for (String apiKey : apiList) {
+		// other senders
+		for (String apiKey : UserData.sourceApiKeys) {
 			EslClient tempClient = new EslClient(apiKey, UserData.sourceApiUrl);
-			Page<DocumentPackage> resultPage1;
-			int pageNum = 1;
-			do {
-				resultPage1 = tempClient.getPackageService().getTemplates(new PageRequest(pageNum, 50));
-				if (resultPage1.getSize() > 0) {
-					for (DocumentPackage documentPackage : resultPage1) {
-						tempalteIdAndName.put(documentPackage.getId().getId(), documentPackage.getName());
-						oldEnvTemplates.put(documentPackage.getId().getId(),
-								documentPackage.getSenderInfo().getEmail());
-					}
-				}
-				pageNum += 50;
-			} while (resultPage1.hasNextPage());
-
+			retrieveTemplatesCallback(tempClient,tempalteIdAndName,oldEnvTemplates);
 		}
 		return tempalteIdAndName;
 	}
 
-	public String getApiKey(String senderId) throws IOException, JSONException {
-		URL client = new URL(UserData.sourceApiUrl+"/account/senders/"+senderId+"/apiKey");
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
-		conn.setRequestProperty("Content-Type", "application/json");
-		conn.setRequestProperty("Authorization", "Basic " + UserData.sourceApiKey);
-		conn.setRequestProperty("Accept", "application/json");
 
-		int responseCode = ((HttpURLConnection) conn).getResponseCode();
-
-		if (responseCode == 200) {
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
+	public void retrieveTemplatesCallback(EslClient ownerClient,Map<String, String> tempalteIdAndName,Map<String, String> oldEnvTemplates) {
+		Page<DocumentPackage> resultPage1;
+		int pageNum = 1;
+		do {
+			resultPage1 = ownerClient.getPackageService().getTemplates(new PageRequest(pageNum, 50));
+			if (resultPage1.getSize() > 0) {
+				for (DocumentPackage documentPackage : resultPage1) {
+					tempalteIdAndName.put(documentPackage.getId().getId(), documentPackage.getName());
+					oldEnvTemplates.put(documentPackage.getId().getId(),
+							documentPackage.getSenderInfo().getEmail());
+				}
 			}
-
-			in.close();
-			conn.disconnect();
-
-			JSONObject json = new JSONObject(response.toString());
-			System.out.println(json.getString("apiKey"));
-			return json.getString("apiKey");
-		} else {
-			throw new RuntimeException("Request did not succeed.");
-		}
+			pageNum += 50;
+		} while (resultPage1.hasNextPage());
 	}
+	
 
 }
