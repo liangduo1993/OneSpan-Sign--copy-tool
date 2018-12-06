@@ -1,7 +1,6 @@
 package com.esignlive.copytool.view;
 
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
@@ -23,11 +22,7 @@ import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.SenderService;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class Process2 {
-	@Getter
 	private JPanel frame;
 	private JRadioButton rdbtnYes;
 	private JRadioButton rdbtnNoallTemplates;
@@ -39,7 +34,6 @@ public class Process2 {
 	private Map<JLabel, JTextField> oldAndNewSenders = new LinkedHashMap<>();
 	private Map<JLabel, JLabel> oldSenderStatus = new LinkedHashMap<>();
 
-	@Setter
 	private String errorMsg;
 	private JButton btnNewButton_1;
 	private JButton btnNewButton_2;
@@ -55,6 +49,18 @@ public class Process2 {
 
 	private Process2 getInstance() {
 		return this;
+	}
+	
+	public JPanel getFrame() {
+		return frame;
+	}
+	
+	
+	
+	
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
 	}
 
 	/**
@@ -279,7 +285,7 @@ public class Process2 {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnInviteSenders.setEnabled(false);
-
+				btnNewButton.setEnabled(false);
 				// set isCopySender
 				if (rdbtnYes.isSelected()) {
 					UserData.copySender = true;
@@ -306,6 +312,7 @@ public class Process2 {
 									JOptionPane.ERROR_MESSAGE);
 
 							btnInviteSenders.setEnabled(true);
+							btnNewButton.setEnabled(true);
 						}
 					}
 				}).start();
@@ -337,7 +344,7 @@ public class Process2 {
 
 			y += 30;
 
-			panel.setPreferredSize(new Dimension(scrollPane.getWidth() - 30, y + 15));
+			panel.setPreferredSize(new Dimension(scrollPane.getWidth() - 30, y + 30));
 		}
 
 	}

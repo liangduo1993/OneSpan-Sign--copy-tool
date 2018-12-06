@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.view.Process4;
+import com.esignlive.copytool.vo.LayoutVo;
+import com.esignlive.copytool.vo.TemplateVo;
 import com.silanis.esl.api.model.Package;
 import com.silanis.esl.sdk.Direction;
 import com.silanis.esl.sdk.Document;
@@ -45,22 +47,22 @@ public class LayoutService {
 		if (defaultConsent != null) {
 			documents.remove(defaultConsent);
 		}
-		
+
 		// download and inject document content byte[]
 		DocumentPackage package1 = sourceClient.getPackage(new PackageId(oldTemplateID));
 		Document defaultDoc = null;
 		for (Document doc : package1.getDocuments()) {
-			if(!doc.getId().toString().equals("default-consent")) {
+			if (!doc.getId().toString().equals("default-consent")) {
 				doc.setFileName(doc.getName() + ".pdf");
 				doc.setContent(sourceClient.downloadDocument(new PackageId(oldTemplateID), doc.getId().getId()));
-			}else {
-				defaultDoc= doc;
+			} else {
+				defaultDoc = doc;
 			}
 		}
-		if(defaultDoc != null) {
+		if (defaultDoc != null) {
 			package1.getDocuments().remove(defaultDoc);
 		}
-		
+
 		PackageId createPackageOneStep = destClient.getPackageService().createPackageOneStep(apiPackage,
 				package1.getDocuments());
 		package1.setId(createPackageOneStep);
@@ -95,37 +97,40 @@ public class LayoutService {
 		// deal with copy layout
 		EslClient sourceClient = UserData.sourceEslClient;
 
-		for (String layoutId : UserData.oldEnvLayouts.keySet()) {
-			EslClient destClient = UserData.destinationEslClient;
+		for (LayoutVo layoutVo : UserData.oldEnvLayouts.values()) {
+			if (layoutVo.getIsCopy()) {
+				EslClient destClient = UserData.destinationEslClient;
 
-			String oldLayoutID = layoutId;
-			String oldSenderEmail = UserData.oldEnvLayouts.get(oldLayoutID);
-			Sender sender = UserData.oldAndNewSenderMap.get(oldSenderEmail);
-			String newSenderEmail = null;
-			if (sender == null) {
-				newSenderEmail = UserData.destinationOwnerEmail;
-			} else {
-				newSenderEmail = sender.getEmail();
-				destClient = new EslClient(UserData.destinationApiKeys.get(newSenderEmail), UserData.destinationApiUrl);
-			}
-			System.out.println(newSenderEmail);
+				String oldLayoutID = layoutVo.getLayoutId();
+				String oldSenderEmail = layoutVo.getOldEnvSenderEmail();
+				Sender sender = UserData.oldAndNewSenderMap.get(oldSenderEmail);
+				String newSenderEmail = null;
+				if (sender == null) {
+					newSenderEmail = UserData.destinationOwnerEmail;
+				} else {
+					newSenderEmail = sender.getEmail();
+					destClient = new EslClient(UserData.destinationApiKeys.get(newSenderEmail),
+							UserData.destinationApiUrl);
+				}
+				System.out.println(newSenderEmail);
 
-			boolean copySuccess = false;
-			try {
-				String copyLayoutsFromOldAccount = copyLayoutsFromOldAccount(sourceClient, destClient, oldLayoutID,
-						newSenderEmail);
-				System.out.println(copyLayoutsFromOldAccount);
-				copySuccess = true;
-			} catch (Exception e) {
+				boolean copySuccess = false;
+				try {
+					String copyLayoutsFromOldAccount = copyLayoutsFromOldAccount(sourceClient, destClient, oldLayoutID,
+							newSenderEmail);
+					System.out.println(copyLayoutsFromOldAccount);
+					copySuccess = true;
+				} catch (Exception e) {
+					// to do
+					// add error msg
+					e.printStackTrace();
+					errorMsg.append(e.getMessage()).append("\n");
+				}
+				// update view
 				// to do
-				// add error msg
-				e.printStackTrace();
-				errorMsg.append(e.getMessage()).append("\n");
+				view.setCopyStatus(oldLayoutID, copySuccess);
+				result.put(oldLayoutID, copySuccess);
 			}
-			// update view
-			// to do
-			view.setCopyStatus(oldLayoutID, copySuccess);
-			result.put(oldLayoutID, copySuccess);
 		}
 		view.setErrorMsg(errorMsg.toString());
 		System.out.println(errorMsg.toString());
@@ -136,29 +141,33 @@ public class LayoutService {
 	public Map<String, String> getOldEnvLayouts() {
 		// set layout list in user data
 		Map<String, String> layoutIdAndName = new LinkedHashMap<>();
-		Map<String, String> oldEnvLayouts = UserData.oldEnvLayouts;
 
 		// retrieve all api keys
 		EslClient ownerClient = new EslClient(UserData.sourceApiKey, UserData.sourceApiUrl);
-		retrieveAllLayoutsCallback(ownerClient, layoutIdAndName, oldEnvLayouts);
+		retrieveAllLayoutsCallback(ownerClient, layoutIdAndName);
 
 		// loop through api list and get all layouts
 		for (String apiKey : UserData.sourceApiKeys) {
 			EslClient tempClient = new EslClient(apiKey, UserData.sourceApiUrl);
-			retrieveAllLayoutsCallback(tempClient, layoutIdAndName, oldEnvLayouts);
+			retrieveAllLayoutsCallback(tempClient, layoutIdAndName);
 		}
 		return layoutIdAndName;
 	}
 
-	public void retrieveAllLayoutsCallback(EslClient tempClient, Map<String, String> layoutIdAndName,
-			Map<String, String> oldEnvLayouts) {
+	public void retrieveAllLayoutsCallback(EslClient tempClient, Map<String, String> layoutIdAndName) {
+		Map<String, LayoutVo> oldEnvLayouts = UserData.oldEnvLayouts;
+
 		List<DocumentPackage> resultPage1;
 		int pageNum = 1;
 		resultPage1 = tempClient.getLayoutService().getLayouts(Direction.ASCENDING, new PageRequest(pageNum, 50));
 		while (!resultPage1.isEmpty()) {
 			for (DocumentPackage documentPackage : resultPage1) {
 				layoutIdAndName.put(documentPackage.getId().getId(), documentPackage.getName());
-				oldEnvLayouts.put(documentPackage.getId().getId(), documentPackage.getSenderInfo().getEmail());
+				LayoutVo layoutVo = new LayoutVo();
+				layoutVo.setIsCopy(false); // initialize
+				layoutVo.setOldEnvSenderEmail(documentPackage.getSenderInfo().getEmail());
+				layoutVo.setLayoutId(documentPackage.getId().getId());
+				oldEnvLayouts.put(documentPackage.getId().getId(), layoutVo);
 			}
 			pageNum += 50;
 			resultPage1 = tempClient.getLayoutService().getLayouts(Direction.ASCENDING, new PageRequest(pageNum, 50));

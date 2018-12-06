@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,12 +18,9 @@ import javax.swing.JTextArea;
 
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.LayoutService;
-
-import lombok.Getter;
-import lombok.Setter;
+import com.esignlive.copytool.vo.LayoutVo;
 
 public class Process4 {
-	@Getter
 	private JPanel frame;
 
 	private JRadioButton rdbtnYes;
@@ -33,8 +31,9 @@ public class Process4 {
 	private JButton btnNextProcess;
 	private JButton btnNewButton_2;
 
-	@Setter
 	private String errorMsg;
+	
+	private Map<JCheckBox, String> layoutCheckboxs = new LinkedHashMap<>();// <checkbox, layout id>
 
 	/**
 	 * Create the application.
@@ -45,6 +44,14 @@ public class Process4 {
 
 	private Process4 getInstance() {
 		return this;
+	}
+
+	public JPanel getFrame() {
+		return frame;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
 	}
 
 	/**
@@ -96,7 +103,7 @@ public class Process4 {
 									}
 								}
 								report.append("Successfully copy ").append(success).append(" layouts.");
-								
+
 								JOptionPane.showMessageDialog(frame, report.toString(), "Copy Layouts Report",
 										JOptionPane.INFORMATION_MESSAGE);
 
@@ -125,7 +132,7 @@ public class Process4 {
 		});
 		btnNextProcess.setEnabled(false);
 		btnNextProcess.setVisible(false);
-		
+
 		btnNextProcess.setBounds(512, 591, 185, 53);
 		frame.add(btnNextProcess);
 
@@ -134,7 +141,7 @@ public class Process4 {
 		frame.add(lblDoYouWant);
 
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(74, 210, 680, 364);
+		scrollPane.setBounds(74, 159, 680, 415);
 		frame.add(scrollPane);
 
 		panel = new JPanel();
@@ -147,19 +154,23 @@ public class Process4 {
 
 		JLabel lblDoYouWant_2 = new JLabel("Do you want to specify Layout IDs?");
 		lblDoYouWant_2.setBounds(76, 172, 287, 14);
+		lblDoYouWant_2.setVisible(false);
 		frame.add(lblDoYouWant_2);
 
 		JRadioButton radioButton_2 = new JRadioButton("Yes.");
+		radioButton_2.setVisible(false);
 		radioButton_2.setBounds(369, 168, 54, 23);
 		frame.add(radioButton_2);
 
 		JRadioButton radioButton_3 = new JRadioButton("No.");
 		radioButton_3.setSelected(true);
+		radioButton_3.setVisible(false);
 		radioButton_3.setBounds(452, 168, 46, 23);
 		frame.add(radioButton_3);
 
 		JButton button = new JButton("Select your folder location");
 		button.setEnabled(false);
+		button.setVisible(false);
 		button.setBounds(545, 159, 191, 40);
 		frame.add(button);
 
@@ -169,11 +180,11 @@ public class Process4 {
 				rdbtnNo.setSelected(false);
 
 				rdbtnYes.setText("Yes. (Loading All Existing Layouts...)");
-				
-				lblDoYouWant_2.setVisible(true);
-				radioButton_2.setVisible(true);
-				radioButton_3.setVisible(true);
-				button.setVisible(true);
+
+//				lblDoYouWant_2.setVisible(true);
+//				radioButton_2.setVisible(true);
+//				radioButton_3.setVisible(true);
+//				button.setVisible(true);
 
 				scrollPane.setVisible(true);
 				btnNewButton.setVisible(true);
@@ -188,21 +199,20 @@ public class Process4 {
 						@Override
 						public void run() {
 							try {
-								//<layout id, layout name>
-								Map<String, String> oldEnvLayouts = LayoutService.getInstance()
-										.getOldEnvLayouts();
+								// <layout id, layout name>
+								Map<String, String> oldEnvLayouts = LayoutService.getInstance().getOldEnvLayouts();
 								System.out.println(oldEnvLayouts);
 								System.out.println(oldEnvLayouts.size());
-								
+
 								// add labels
 								scrollPane.setVisible(false);
 								addLabels(oldEnvLayouts);
 								scrollPane.setVisible(true);
 
 								btnNewButton.setEnabled(true);
-								
+
 								rdbtnYes.setText("Yes.");
-								
+
 								scrollPane.repaint();
 							} catch (Exception e1) {
 								e1.printStackTrace();
@@ -227,10 +237,10 @@ public class Process4 {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnYes.setSelected(false);
 
-				lblDoYouWant_2.setVisible(false);
-				radioButton_2.setVisible(false);
-				radioButton_3.setVisible(false);
-				button.setVisible(false);
+//				lblDoYouWant_2.setVisible(false);
+//				radioButton_2.setVisible(false);
+//				radioButton_3.setVisible(false);
+//				button.setVisible(false);
 
 				scrollPane.setVisible(false);
 				btnNewButton.setVisible(false);
@@ -252,7 +262,7 @@ public class Process4 {
 
 				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Copy Layouts Error",
 						JOptionPane.ERROR_MESSAGE);
-				
+
 			}
 		});
 		btnNewButton_2.setBounds(272, 591, 151, 53);
@@ -267,25 +277,59 @@ public class Process4 {
 
 		Map.Entry<String, String>[] array = oldEnvTemplates.entrySet().toArray(new Map.Entry[oldEnvTemplates.size()]);
 
-		// String[] oldEnvTemplatesArray = oldEnvTemplates.keySet().toArray(new
-		// String[oldEnvTemplates.size()]);
+		JCheckBox chckbxNewCheckBox = new JCheckBox("                              Choose All");
+		chckbxNewCheckBox.setBounds(6, 32, 200, 20);
+		chckbxNewCheckBox.setEnabled(false);
+		panel.add(chckbxNewCheckBox);
+		chckbxNewCheckBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (JCheckBox jCheckbox : layoutCheckboxs.keySet()) {
+					jCheckbox.setSelected(chckbxNewCheckBox.isSelected());
+				}
+			}
+		});
 
 		for (int i = 0; i < array.length; i++) {
+			JCheckBox chckbxNewCheckBoxTemp = new JCheckBox("");
+			chckbxNewCheckBoxTemp.setBounds(6, y, 20, 20);
+			chckbxNewCheckBoxTemp.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JCheckBox source = (JCheckBox) e.getSource();
+					String layoutId = null;
+					if ((layoutId = layoutCheckboxs.get(source)) != null) {
+						LayoutVo layoutVo = UserData.oldEnvLayouts.get(layoutId);
+						if (layoutVo != null) {
+							layoutVo.setIsCopy(source.isSelected());
+						}
+					}
+				}
+			});
+
+			panel.add(chckbxNewCheckBoxTemp);
+
 			JLabel lblTestData = new JLabel(array[i].getKey() + " : " + array[i].getValue());
-			lblTestData.setBounds(17, y, 500, 20);
+			lblTestData.setBounds(50, y, 550, 20);
 			panel.add(lblTestData);
 
 			// add copy template status column
 			JLabel lblNewLabel_1 = new JLabel("");
-			lblNewLabel_1.setBounds(550, y, 20, 20);
+			lblNewLabel_1.setBounds(600, y, 20, 20);
 			panel.add(lblNewLabel_1);
 			oldEnvLayoutCopyStatus.put(array[i].getKey(), lblNewLabel_1);
+
+			layoutCheckboxs.put(chckbxNewCheckBoxTemp, array[i].getKey());
 
 			y += 30;
 
 			panel.setPreferredSize(new Dimension(scrollPane.getWidth() - 30, y + 30));
 			// System.out.println(panel.getPreferredSize().getHeight());
 		}
+
+		chckbxNewCheckBox.setEnabled(true);
 	}
 
 	public void setCopyStatus(String oldTemplateId, boolean copyStatus) {

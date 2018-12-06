@@ -5,9 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,12 +19,11 @@ import javax.swing.JTextArea;
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.TemplateService;
-
-import lombok.Getter;
-import lombok.Setter;
+import com.esignlive.copytool.vo.TemplateVo;
 
 public class Process3 {
-	@Getter
+	protected static final String JCheckBox = null;
+
 	private JPanel frame;
 
 	private JRadioButton rdbtnYes;
@@ -34,8 +33,8 @@ public class Process3 {
 	private Map<String, JLabel> oldEnvTemplateCopyStatus = new LinkedHashMap<>(); // <old temp id, status label>
 	private JButton btnNextProcess;
 	private JButton btnNewButton_2;
+	private Map<JCheckBox, String> templateCheckboxs = new LinkedHashMap<>();// <checkbox, template id>
 
-	@Setter
 	private String errorMsg;
 
 	/**
@@ -47,6 +46,14 @@ public class Process3 {
 
 	private Process3 getInstance() {
 		return this;
+	}
+
+	public JPanel getFrame() {
+		return frame;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
 	}
 
 	/**
@@ -137,7 +144,7 @@ public class Process3 {
 		frame.add(lblDoYouWant);
 
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(74, 286, 680, 288);
+		scrollPane.setBounds(74, 202, 680, 372);
 		frame.add(scrollPane);
 
 		panel = new JPanel();
@@ -190,15 +197,15 @@ public class Process3 {
 				rdbtnNo.setSelected(false);
 
 				rdbtnYes.setText("Yes. (Loading All Existing Templates...)");
-				
+
 				lblDoYouWant_1.setVisible(true);
 				radioButton.setVisible(true);
 				radioButton_1.setVisible(true);
 				btnNewButton_1.setVisible(true);
-				lblDoYouWant_2.setVisible(true);
-				radioButton_2.setVisible(true);
-				radioButton_3.setVisible(true);
-				button.setVisible(true);
+				lblDoYouWant_2.setVisible(false);
+				radioButton_2.setVisible(false);
+				radioButton_3.setVisible(false);
+				button.setVisible(false);
 
 				scrollPane.setVisible(true);
 				btnNewButton.setVisible(true);
@@ -225,9 +232,9 @@ public class Process3 {
 								scrollPane.setVisible(true);
 
 								btnNewButton.setEnabled(true);
-								
+
 								rdbtnYes.setText("Yes.");
-								
+
 								scrollPane.repaint();
 							} catch (Exception e1) {
 								e1.printStackTrace();
@@ -280,7 +287,7 @@ public class Process3 {
 
 				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Copy Template Error",
 						JOptionPane.ERROR_MESSAGE);
-				
+
 			}
 		});
 		btnNewButton_2.setBounds(272, 591, 101, 53);
@@ -298,22 +305,59 @@ public class Process3 {
 		// String[] oldEnvTemplatesArray = oldEnvTemplates.keySet().toArray(new
 		// String[oldEnvTemplates.size()]);
 
+		JCheckBox chckbxNewCheckBox = new JCheckBox("                              Choose All");
+		chckbxNewCheckBox.setBounds(6, 32, 200, 20);
+		chckbxNewCheckBox.setEnabled(false);
+		panel.add(chckbxNewCheckBox);
+		chckbxNewCheckBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (JCheckBox jCheckbox : templateCheckboxs.keySet()) {
+					jCheckbox.setSelected(chckbxNewCheckBox.isSelected());
+				}
+			}
+		});
+
 		for (int i = 0; i < array.length; i++) {
+			JCheckBox chckbxNewCheckBoxTemp = new JCheckBox("");
+			chckbxNewCheckBoxTemp.setBounds(6, y, 20, 20);
+			chckbxNewCheckBoxTemp.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JCheckBox source = (JCheckBox) e.getSource();
+					String tempalteId = null;
+					if ((tempalteId = templateCheckboxs.get(source)) != null) {
+						TemplateVo templateVo = UserData.oldEnvTemplates.get(tempalteId);
+						if (templateVo != null) {
+							templateVo.setIsCopy(source.isSelected());
+						}
+					}
+				}
+			});
+
+			panel.add(chckbxNewCheckBoxTemp);
+
 			JLabel lblTestData = new JLabel(array[i].getKey() + " : " + array[i].getValue());
-			lblTestData.setBounds(17, y, 500, 20);
+			lblTestData.setBounds(50, y, 550, 20);
 			panel.add(lblTestData);
 
 			// add copy template status column
 			JLabel lblNewLabel_1 = new JLabel("");
-			lblNewLabel_1.setBounds(550, y, 20, 20);
+			lblNewLabel_1.setBounds(600, y, 20, 20);
 			panel.add(lblNewLabel_1);
 			oldEnvTemplateCopyStatus.put(array[i].getKey(), lblNewLabel_1);
+
+			templateCheckboxs.put(chckbxNewCheckBoxTemp, array[i].getKey());
 
 			y += 30;
 
 			panel.setPreferredSize(new Dimension(scrollPane.getWidth() - 30, y + 30));
 			// System.out.println(panel.getPreferredSize().getHeight());
 		}
+
+		chckbxNewCheckBox.setEnabled(true);
 	}
 
 	public void setCopyStatus(String oldTemplateId, boolean copyStatus) {

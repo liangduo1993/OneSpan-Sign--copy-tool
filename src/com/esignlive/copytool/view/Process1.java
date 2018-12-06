@@ -2,8 +2,6 @@ package com.esignlive.copytool.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -12,23 +10,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.EndpointService;
-import com.esignlive.copytool.service.SenderService;
 import com.esignlive.copytool.utils.InstanceUtil;
-
-import lombok.Getter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Map;
-import javax.swing.JRadioButton;
 
 public class Process1 {
 
-	@Getter
 	private JPanel frame;
 	private JTextField textField;
 	private JTextField textField_1;
@@ -48,6 +39,10 @@ public class Process1 {
 	 */
 	public Process1() {
 		initialize();
+	}
+	
+	public JPanel getFrame() {
+		return frame;
 	}
 
 	/**
@@ -127,7 +122,7 @@ public class Process1 {
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
-		comboBox.setBounds(277, 201, 190, 38);
+		comboBox.setBounds(277, 201, 286, 38);
 		frame.add(comboBox);
 
 		textField_1 = new JTextField();
@@ -137,7 +132,7 @@ public class Process1 {
 
 		JComboBox comboBox_1 = new JComboBox();
 		comboBox_1.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
-		comboBox_1.setBounds(277, 462, 190, 38);
+		comboBox_1.setBounds(277, 462, 286, 38);
 		frame.add(comboBox_1);
 
 		JButton btnNextProcess = new JButton("Next Process");

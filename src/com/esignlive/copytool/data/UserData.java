@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.esignlive.copytool.vo.LayoutVo;
+import com.esignlive.copytool.vo.TemplateVo;
 import com.silanis.esl.sdk.EslClient;
 import com.silanis.esl.sdk.Sender;
 
@@ -27,10 +29,9 @@ public class UserData {
 	
 	public static EslClient destinationEslClient;
 	
-	
 	public static Map<String, Sender> oldSenderList = new HashMap<>();
-	public static Map<String,String> oldEnvTemplates = new LinkedHashMap<>();//<template id, sender email>
-	public static Map<String,String> oldEnvLayouts = new LinkedHashMap<>();//<layout id, sender email>
+	public static Map<String, TemplateVo> oldEnvTemplates = new LinkedHashMap<>();//<template id, TemplateVo object>
+	public static Map<String,LayoutVo> oldEnvLayouts = new LinkedHashMap<>();//<layout id, sender email>
 	
 	public static Map<String,Sender> oldAndNewSenderMap = new HashMap<>();
 	

@@ -9,14 +9,15 @@ import javax.swing.SwingConstants;
 
 import com.esignlive.copytool.App;
 
-import lombok.Getter;
-
 
 public class Process0 {
-	@Getter
 	private JPanel frame;
 
 	
+	public JPanel getFrame() {
+		return frame;
+	}
+
 	public Process0() {
 		initialize();
 	}
