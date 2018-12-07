@@ -1,8 +1,11 @@
 package com.esignlive.copytool.service;
 
+
+import java.io.FileInputStream;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.view.Process3;
@@ -45,7 +48,16 @@ public class TemplateService {
 		for (Document doc : package1.getDocuments()) {
 			if (!doc.getId().toString().equals("default-consent")) {
 				doc.setFileName(doc.getName() + ".pdf");
-				doc.setContent(sourceClient.downloadDocument(new PackageId(oldTemplateID), doc.getId().getId()));
+				if (UserData.originalDocumentMap.containsKey(doc.getName())) {
+					try {
+						doc.setContent(IOUtils.toByteArray(new FileInputStream(UserData.originalDocumentMap.get(doc.getName()))));
+					} catch (Exception e) {
+						e.printStackTrace();
+						doc.setContent(sourceClient.downloadDocument(new PackageId(oldTemplateID), doc.getId().getId()));
+					}
+				} else {
+					doc.setContent(sourceClient.downloadDocument(new PackageId(oldTemplateID), doc.getId().getId()));
+				}
 			} else {
 				defaultDoc = doc;
 			}
@@ -69,16 +81,11 @@ public class TemplateService {
 	 * @param String
 	 *            specify partial template IDs //to do
 	 */
-	public Map<String, Boolean> copyTemplate(String originalDocumentsFolders, String templateIdCsv, Process3 view) {
+	public Map<String, Boolean> copyTemplate(Process3 view) {
 		Map<String, Boolean> result = new LinkedHashMap<>();
 
 		// build error msg
 		StringBuilder errorMsg = new StringBuilder(200);
-		// errorMsg.append("<html>");
-
-		// deal with original documents
-
-		// deal with partial template ids
 
 		// deal with copy template
 		EslClient sourceClient = UserData.sourceEslClient;
@@ -114,12 +121,6 @@ public class TemplateService {
 				result.put(oldTemplateID, copySuccess);
 			}
 		}
-		// }
-		// pageNum += 50;
-		// } while (resultPage1.hasNextPage());
-
-		// return error msg
-		// errorMsg.append("</html>");
 		view.setErrorMsg(errorMsg.toString());
 		return result;
 	}
@@ -127,7 +128,6 @@ public class TemplateService {
 	public Map<String, String> getOldEnvTemplates() {
 		// set template list in user data
 		Map<String, String> templateIdAndName = new LinkedHashMap<>();
-		// List<TemplateVo> oldEnvTemplates = UserData.oldEnvTemplates;
 
 		// old env owner
 		EslClient ownerClient = new EslClient(UserData.sourceApiKey, UserData.sourceApiUrl);

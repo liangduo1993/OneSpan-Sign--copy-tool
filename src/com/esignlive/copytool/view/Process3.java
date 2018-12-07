@@ -3,11 +3,13 @@ package com.esignlive.copytool.view;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -32,10 +34,11 @@ public class Process3 {
 	private JScrollPane scrollPane;
 	private Map<String, JLabel> oldEnvTemplateCopyStatus = new LinkedHashMap<>(); // <old temp id, status label>
 	private JButton btnNextProcess;
-	private JButton btnNewButton_2;
+	private JButton btnNewButton_1, btnNewButton_2;
 	private Map<JCheckBox, String> templateCheckboxs = new LinkedHashMap<>();// <checkbox, template id>
 
 	private String errorMsg;
+	private JRadioButton radioButton, radioButton_1;
 
 	/**
 	 * Create the application.
@@ -88,8 +91,7 @@ public class Process3 {
 
 							@Override
 							public void run() {
-								Map<String, Boolean> copyTemplate = TemplateService.getInstance().copyTemplate(null,
-										null, getInstance());
+								Map<String, Boolean> copyTemplate = TemplateService.getInstance().copyTemplate(getInstance());
 
 								errorMsg = null;
 								btnNewButton.setEnabled(true);
@@ -159,18 +161,58 @@ public class Process3 {
 		lblDoYouWant_1.setBounds(76, 164, 287, 14);
 		frame.add(lblDoYouWant_1);
 
-		JButton btnNewButton_1 = new JButton("Select your folder location");
+		btnNewButton_1 = new JButton("Select your folder location");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+				int returnVal = fc.showOpenDialog(getFrame());
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					// This is where a real application would open the file.
+					// System.out.println(file.getAbsolutePath() + " : " + file.getName());
+
+					File[] children = file.listFiles();
+					if (children != null && children.length > 0) {
+						UserData.originalDocumentMap.clear();
+						for (File docs : children) {
+							System.out.println(docs.getName() + " : " + docs.getAbsolutePath());
+							UserData.originalDocumentMap.put(docs.getName(), docs.getAbsolutePath());
+						}
+					}
+				} else {
+					System.out.println("open canceled");
+				}
+
+			}
+		});
 		btnNewButton_1.setEnabled(false);
 		btnNewButton_1.setBounds(545, 151, 191, 40);
 		frame.add(btnNewButton_1);
 
-		JRadioButton radioButton = new JRadioButton("Yes.");
+		radioButton = new JRadioButton("Yes.");
+		radioButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				radioButton_1.setSelected(false);
+				((JRadioButton) e.getSource()).setSelected(true);
+				btnNewButton_1.setEnabled(true);
+			}
+		});
 		radioButton.setBounds(369, 160, 54, 23);
 		frame.add(radioButton);
 
-		JRadioButton radioButton_1 = new JRadioButton("No.");
+		radioButton_1 = new JRadioButton("No.");
 		radioButton_1.setSelected(true);
 		radioButton_1.setBounds(452, 160, 46, 23);
+		radioButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				radioButton.setSelected(false);
+				((JRadioButton) e.getSource()).setSelected(true);
+				btnNewButton_1.setEnabled(false);
+			}
+		});
 		frame.add(radioButton_1);
 
 		JLabel lblDoYouWant_2 = new JLabel("Do you want to specify Template IDs?");
@@ -195,9 +237,8 @@ public class Process3 {
 		rdbtnYes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnNo.setSelected(false);
-
-				rdbtnYes.setText("Yes. (Loading All Existing Templates...)");
-
+				
+				
 				lblDoYouWant_1.setVisible(true);
 				radioButton.setVisible(true);
 				radioButton_1.setVisible(true);
@@ -213,6 +254,8 @@ public class Process3 {
 				btnNextProcess.setEnabled(false);
 
 				if (UserData.oldEnvTemplates == null || UserData.oldEnvTemplates.size() == 0) {
+					rdbtnYes.setText("Yes. (Loading All Existing Templates...)");
+					rdbtnNo.setEnabled(false);
 					btnNewButton.setEnabled(false);
 					// load all templates in old env
 					new Thread(new Runnable() {
@@ -242,6 +285,8 @@ public class Process3 {
 								JOptionPane.showMessageDialog(frame, e1.getMessage(),
 										"Fail load old environment Templates", JOptionPane.ERROR_MESSAGE);
 							}
+							
+							rdbtnNo.setEnabled(true);
 							scrollPane.repaint();
 						}
 
@@ -315,6 +360,15 @@ public class Process3 {
 			public void actionPerformed(ActionEvent e) {
 				for (JCheckBox jCheckbox : templateCheckboxs.keySet()) {
 					jCheckbox.setSelected(chckbxNewCheckBox.isSelected());
+					
+					String tempalteId = null;
+					if ((tempalteId = templateCheckboxs.get(jCheckbox)) != null) {
+						TemplateVo templateVo = UserData.oldEnvTemplates.get(tempalteId);
+						if (templateVo != null) {
+							templateVo.setIsCopy(chckbxNewCheckBox.isSelected());
+						}
+					}
+					
 				}
 			}
 		});

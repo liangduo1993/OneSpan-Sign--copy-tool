@@ -178,9 +178,7 @@ public class Process4 {
 		rdbtnYes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnNo.setSelected(false);
-
-				rdbtnYes.setText("Yes. (Loading All Existing Layouts...)");
-
+				
 //				lblDoYouWant_2.setVisible(true);
 //				radioButton_2.setVisible(true);
 //				radioButton_3.setVisible(true);
@@ -192,7 +190,9 @@ public class Process4 {
 				btnNextProcess.setEnabled(false);
 
 				if (UserData.oldEnvLayouts == null || UserData.oldEnvLayouts.size() == 0) {
+					rdbtnYes.setText("Yes. (Loading All Existing Layouts...)");
 					btnNewButton.setEnabled(false);
+					rdbtnNo.setEnabled(false);
 					// load all templates in old env
 					new Thread(new Runnable() {
 
@@ -220,6 +220,8 @@ public class Process4 {
 								JOptionPane.showMessageDialog(frame, e1.getMessage(),
 										"Fail load old environment Layouts", JOptionPane.ERROR_MESSAGE);
 							}
+							
+							rdbtnNo.setEnabled(true);
 							scrollPane.repaint();
 						}
 
@@ -287,6 +289,14 @@ public class Process4 {
 			public void actionPerformed(ActionEvent e) {
 				for (JCheckBox jCheckbox : layoutCheckboxs.keySet()) {
 					jCheckbox.setSelected(chckbxNewCheckBox.isSelected());
+					
+					String layoutId = null;
+					if ((layoutId = layoutCheckboxs.get(jCheckbox)) != null) {
+						LayoutVo layoutVo = UserData.oldEnvLayouts.get(layoutId);
+						if (layoutVo != null) {
+							layoutVo.setIsCopy(chckbxNewCheckBox.isSelected());
+						}
+					}
 				}
 			}
 		});

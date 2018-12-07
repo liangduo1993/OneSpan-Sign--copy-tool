@@ -98,33 +98,33 @@ public class SenderService {
 				try {
 					Sender inviteUser = destinationEslClient.getAccountService()
 							.inviteUser(SenderUtil.toAccontMember(sender));
-					
+
 					oldAndNewSenderMap.put(oldSenderEmail.getText(), inviteUser);
-					
+
 					try {
-						String apiKey = getApiKey(false,inviteUser.getId());
+						String apiKey = getApiKey(false, inviteUser.getId());
 						UserData.destinationApiKeys.put(inviteUser.getEmail(), apiKey);
 						result.put(oldSenderEmail, true);
-					}catch(Exception ex) {
-						// to do 
+					} catch (Exception ex) {
+						// to do
 						errorMsg.append(ex.getMessage()).append("\n");
 						result.put(oldSenderEmail, false);
 					}
-					
+
 				} catch (Exception e) {
 					// errorMsg.append(e.getMessage()).append("<br/>");
 					errorMsg.append(e.getMessage()).append("\n");
 					result.put(oldSenderEmail, false);
 				}
 			} else { // new sender email is null
-				// we consider invite successfully
-				result.put(oldSenderEmail, true);
+				// we don't return any result by returning null
+				result.put(oldSenderEmail, null);
 				// no mapping old to new sender
 				oldAndNewSenderMap.put(oldSenderEmail.getText(), null);
 			}
-
-			view.setInvitationStatus(oldSenderEmail, result.get(oldSenderEmail));
-
+			if (result.get(oldSenderEmail) != null) {
+				view.setInvitationStatus(oldSenderEmail, result.get(oldSenderEmail));
+			}
 		}
 
 		// return error msg

@@ -37,5 +37,6 @@ public class UserData {
 	
 	public static boolean copySender;
 	
+	public static Map<String,String> originalDocumentMap = new LinkedHashMap<>();//<document name, document path>
 	
 }

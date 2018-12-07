@@ -16,7 +16,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
@@ -50,14 +49,10 @@ public class Process2 {
 	private Process2 getInstance() {
 		return this;
 	}
-	
+
 	public JPanel getFrame() {
 		return frame;
 	}
-	
-	
-	
-	
 
 	public void setErrorMsg(String errorMsg) {
 		this.errorMsg = errorMsg;
@@ -85,7 +80,7 @@ public class Process2 {
 		frame.add(lblDoYouWant);
 
 		rdbtnYes = new JRadioButton("Yes.");
-		rdbtnYes.setBounds(67, 76, 109, 23);
+		rdbtnYes.setBounds(67, 76, 264, 23);
 		rdbtnYes.addActionListener(new ActionListener() {
 
 			@Override
@@ -98,7 +93,11 @@ public class Process2 {
 				btnNewButton_1.setEnabled(true);
 				button.setEnabled(true);
 
+				
+
 				if (UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
+					rdbtnYes.setText("Yes. (Loading sender list...)");
+					rdbtnNoallTemplates.setEnabled(false);
 					btnInviteSenders.setEnabled(false);
 					btnNewButton_1.setEnabled(false);
 					button.setEnabled(false);
@@ -126,7 +125,8 @@ public class Process2 {
 								JOptionPane.showMessageDialog(frame, e1.getMessage(),
 										"Fail load old environment senders", JOptionPane.ERROR_MESSAGE);
 							}
-
+							rdbtnNoallTemplates.setEnabled(true);
+							rdbtnYes.setText("Yes.");
 						}
 					}).start();
 				}
@@ -180,28 +180,6 @@ public class Process2 {
 		btnNewButton_1.setBounds(300, 74, 61, 92);
 		panel.add(btnNewButton_1);
 
-		btnNewButton_2 = new JButton("<html>\r\nView</br>\r\nError</br>\r\nReport</br>\r\n</html>");
-		btnNewButton_2.setHorizontalAlignment(SwingConstants.LEFT);
-		btnNewButton_2.setVisible(false);
-
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// to do
-				System.out.println(errorMsg);
-
-				JTextArea ta = new JTextArea(20, 50);
-				ta.setText(errorMsg);
-				ta.setEditable(false);
-
-				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Inviting Sender Error",
-						JOptionPane.ERROR_MESSAGE);
-
-			}
-		});
-		btnNewButton_2.setVerticalAlignment(SwingConstants.TOP);
-		btnNewButton_2.setBounds(300, 301, 61, 60);
-		panel.add(btnNewButton_2);
-
 		button = new JButton("<=");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -217,7 +195,7 @@ public class Process2 {
 
 		// buttons
 		btnInviteSenders = new JButton("Invite Senders");
-		btnInviteSenders.setBounds(122, 600, 162, 38);
+		btnInviteSenders.setBounds(67, 600, 162, 38);
 		btnInviteSenders.setEnabled(false);
 
 		btnInviteSenders.addActionListener(new ActionListener() {
@@ -229,7 +207,7 @@ public class Process2 {
 				button.setEnabled(false);
 				btnNewButton_2.setEnabled(false);
 				btnNewButton_2.setVisible(false);
-
+				btnInviteSenders.setEnabled(false);
 				// clear invite status labels
 				clearInvitationStatus();
 
@@ -249,12 +227,11 @@ public class Process2 {
 
 						// set labels
 						for (JLabel oldSenderEmail : inviteResult.keySet()) {
-							boolean isSuccess = inviteResult.get(oldSenderEmail);
-
-							if (!isSuccess) {
-								canNext = false;
+							if (inviteResult.get(oldSenderEmail) != null) {
+								if (!inviteResult.get(oldSenderEmail)) {
+									canNext = false;
+								}
 							}
-
 						}
 
 						// if has error, show error report button
@@ -270,6 +247,7 @@ public class Process2 {
 						if (canNext) {
 							btnNewButton.setEnabled(true);
 						}
+						btnInviteSenders.setEnabled(true);
 						scrollPane.repaint();
 					}
 				}).start();
@@ -286,6 +264,9 @@ public class Process2 {
 			public void actionPerformed(ActionEvent e) {
 				btnInviteSenders.setEnabled(false);
 				btnNewButton.setEnabled(false);
+				rdbtnYes.setEnabled(false);
+				rdbtnNoallTemplates.setEnabled(false);
+				
 				// set isCopySender
 				if (rdbtnYes.isSelected()) {
 					UserData.copySender = true;
@@ -313,6 +294,9 @@ public class Process2 {
 
 							btnInviteSenders.setEnabled(true);
 							btnNewButton.setEnabled(true);
+							
+							rdbtnYes.setEnabled(true);
+							rdbtnNoallTemplates.setEnabled(true);
 						}
 					}
 				}).start();
@@ -320,6 +304,26 @@ public class Process2 {
 			}
 		});
 		frame.add(btnNewButton);
+		
+				btnNewButton_2 = new JButton("<html>\r\nView</br>\r\nError</br>\r\nReport</br>\r\n</html>");
+				btnNewButton_2.setBounds(242, 601, 162, 37);
+				frame.add(btnNewButton_2);
+				btnNewButton_2.setVisible(false);
+				
+						btnNewButton_2.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								// to do
+								System.out.println(errorMsg);
+				
+								JTextArea ta = new JTextArea(20, 50);
+								ta.setText(errorMsg);
+								ta.setEditable(false);
+				
+								JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Inviting Sender Error",
+										JOptionPane.ERROR_MESSAGE);
+				
+							}
+						});
 
 	}
 
