@@ -322,12 +322,6 @@ public class SenderService {
 
 	// to check
 	public void senderNextProcessCallback() throws IOException, JSONException {
-		// // set new env owner email
-		// UserData.destinationOwnerEmail =
-		// getOwnerEmail(UserData.destinationEslClient);
-		// System.out.println("set dest owenr email: " +
-		// UserData.destinationOwnerEmail);
-
 		// set old env sender
 		if (UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
 			getOldEnvSenders();

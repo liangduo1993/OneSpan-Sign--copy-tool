@@ -1,9 +1,12 @@
 package com.esignlive.copytool.vo;
 
+import org.json.JSONObject;
+
 public class TemplateVo {
 	private Boolean isCopy;
 	private String templateId;
 	private String oldEnvSenderEmail;
+	private JSONObject content;
 
 	public Boolean getIsCopy() {
 		return isCopy;
@@ -27,6 +30,14 @@ public class TemplateVo {
 
 	public void setOldEnvSenderEmail(String oldEnvSenderEmail) {
 		this.oldEnvSenderEmail = oldEnvSenderEmail;
+	}
+
+	public JSONObject getContent() {
+		return content;
+	}
+
+	public void setContent(JSONObject content) {
+		this.content = content;
 	}
 
 }

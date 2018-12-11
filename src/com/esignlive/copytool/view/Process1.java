@@ -167,7 +167,9 @@ public class Process1 {
 							UserData.sourceApiUrl = InstanceUtil.getUrlByKey((String) comboBox.getSelectedItem());
 							UserData.destinationApiUrl = InstanceUtil
 									.getUrlByKey((String) comboBox_1.getSelectedItem());
-
+							System.out.println(UserData.sourceApiUrl);
+							System.out.println(UserData.destinationApiUrl);
+							
 							if (!StringUtils.isEmpty(textField.getText())) {
 								UserData.sourceCredential.setApiKey(textField.getText().trim());
 							}

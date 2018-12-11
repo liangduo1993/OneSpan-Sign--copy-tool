@@ -22,7 +22,6 @@ public class UserData {
 	public static AccountVo destinationCredential = new AccountVo();
 	public static String destinationApiUrl;
 	public static Map<String, String> destinationApiKeys = new LinkedHashMap<>();// don't include owner credential
-//	public static String destinationOwnerEmail;
 	public static OwnerVo destinationOwnerVo = new OwnerVo();
 	
 	

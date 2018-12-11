@@ -39,7 +39,7 @@ public class EndpointService {
 		URL sourceClient = new URL(url);
 		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
 		sourceConn.setRequestProperty("Content-Type", "application/json");
-		HttpURLConnectionUtil.addCredential(sourceConn, UserData.sourceCredential);
+		HttpURLConnectionUtil.addCredential(sourceConn, accountVo);
 		sourceConn.setRequestProperty("Accept", "application/json");
 		
 		System.out.println(sourceConn.getRequestProperties());

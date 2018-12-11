@@ -128,6 +128,7 @@ public class Process3 {
 
 			}
 		});
+		
 		btnNewButton.setBounds(103, 591, 163, 53);
 		frame.add(btnNewButton);
 
