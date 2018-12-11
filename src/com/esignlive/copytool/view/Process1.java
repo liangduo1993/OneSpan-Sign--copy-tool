@@ -2,6 +2,7 @@ package com.esignlive.copytool.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.AccessMode;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -17,6 +18,8 @@ import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.EndpointService;
 import com.esignlive.copytool.utils.InstanceUtil;
+import com.esignlive.copytool.utils.StringUtils;
+import com.esignlive.copytool.vo.AccountVo;
 
 public class Process1 {
 
@@ -40,7 +43,7 @@ public class Process1 {
 	public Process1() {
 		initialize();
 	}
-	
+
 	public JPanel getFrame() {
 		return frame;
 	}
@@ -161,12 +164,28 @@ public class Process1 {
 							System.out.println(comboBox.getSelectedItem());
 							System.out.println(textField_1.getText());
 							System.out.println((String) comboBox.getSelectedItem());
-
-							UserData.sourceApiKey = textField.getText();
 							UserData.sourceApiUrl = InstanceUtil.getUrlByKey((String) comboBox.getSelectedItem());
-							UserData.destinationApiKey = textField_1.getText();
 							UserData.destinationApiUrl = InstanceUtil
 									.getUrlByKey((String) comboBox_1.getSelectedItem());
+
+							if (!StringUtils.isEmpty(textField.getText())) {
+								UserData.sourceCredential.setApiKey(textField.getText().trim());
+							}
+							if (!StringUtils.isEmpty(textField_2.getText())) {
+								UserData.sourceCredential.setUsername(textField_2.getText().trim());
+							}
+							if (!StringUtils.isEmpty(textField_3.getText())) {
+								UserData.sourceCredential.setPassword(textField_3.getText().trim());
+							}
+							if (!StringUtils.isEmpty(textField_1.getText())) {
+								UserData.destinationCredential.setApiKey(textField_1.getText().trim());
+							}
+							if (!StringUtils.isEmpty(textField_4.getText())) {
+								UserData.destinationCredential.setUsername(textField_4.getText().trim());
+							}
+							if (!StringUtils.isEmpty(textField_5.getText())) {
+								UserData.destinationCredential.setPassword(textField_5.getText().trim());
+							}
 
 							EndpointService.getInstance().testConnection();
 							btnNextProcess.setEnabled(true);
@@ -174,14 +193,14 @@ public class Process1 {
 							// show success dialog
 							JOptionPane.showMessageDialog(frame, "API Keys are all valid!", "Connection test success",
 									JOptionPane.INFORMATION_MESSAGE);
-
+							
 						} catch (Exception exception) {
 							exception.printStackTrace();
-
+							
 							// to do
 							// show connection test fail dialog
 							JOptionPane.showMessageDialog(frame,
-									"Please make sure your API Keys are valid and match your Environment!",
+									exception.getMessage(),
 									"Connection test fail", JOptionPane.ERROR_MESSAGE);
 						}
 						btnNewButton.setEnabled(true);
@@ -197,32 +216,39 @@ public class Process1 {
 		rdbtnWithApiKey = new JRadioButton("With API KEY");
 		rdbtnWithApiKey.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				rdbtnWithCredentials.setSelected(false);
-				lblNewLabel.setVisible(true);
-				textField.setVisible(true);
-				lblSourceUsername.setVisible(false);
-				lblSourcePassowrd.setVisible(false);
-				textField_2.setVisible(false);
-				textField_3.setVisible(false);
-
+				if (rdbtnWithApiKey.isSelected()) {
+					rdbtnWithCredentials.setSelected(false);
+					lblNewLabel.setVisible(true);
+					textField.setVisible(true);
+					lblSourceUsername.setVisible(false);
+					lblSourcePassowrd.setVisible(false);
+					textField_2.setVisible(false);
+					textField_3.setVisible(false);
+					UserData.sourceCredential.setCredentialType(AccountVo.CredentialType.API_KEY);
+				}else {
+					rdbtnWithApiKey.setSelected(true);
+				}
 			}
 		});
 		rdbtnWithApiKey.setBounds(125, 58, 200, 50);
-		
+
 		frame.add(rdbtnWithApiKey);
 
 		rdbtnWithCredentials = new JRadioButton("With Credentials");
 		rdbtnWithCredentials.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				rdbtnWithApiKey.setSelected(false);
-				
-				
-				lblNewLabel.setVisible(false);
-				textField.setVisible(false);
-				lblSourceUsername.setVisible(true);
-				lblSourcePassowrd.setVisible(true);
-				textField_2.setVisible(true);
-				textField_3.setVisible(true);
+				if (rdbtnWithCredentials.isSelected()) {
+					rdbtnWithApiKey.setSelected(false);
+					lblNewLabel.setVisible(false);
+					textField.setVisible(false);
+					lblSourceUsername.setVisible(true);
+					lblSourcePassowrd.setVisible(true);
+					textField_2.setVisible(true);
+					textField_3.setVisible(true);
+					UserData.sourceCredential.setCredentialType(AccountVo.CredentialType.CREDENTIAL);
+				}else {
+					rdbtnWithCredentials.setSelected(true);
+				}
 			}
 		});
 		rdbtnWithCredentials.setBounds(363, 55, 200, 50);
@@ -231,43 +257,47 @@ public class Process1 {
 		destiAPIKeyButton = new JRadioButton("With API KEY");
 		destiAPIKeyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				destCrenButton.setSelected(false);
-				lblDestinationApiKey.setVisible(true);
-				textField_1.setVisible(true);
-				lblDestinationUsername.setVisible(false);
-				lblDestinationPassowrd.setVisible(false);
-				textField_4.setVisible(false);
-				textField_5.setVisible(false);
-
+				if (destiAPIKeyButton.isSelected()) {
+					destCrenButton.setSelected(false);
+					lblDestinationApiKey.setVisible(true);
+					textField_1.setVisible(true);
+					lblDestinationUsername.setVisible(false);
+					lblDestinationPassowrd.setVisible(false);
+					textField_4.setVisible(false);
+					textField_5.setVisible(false);
+					UserData.destinationCredential.setCredentialType(AccountVo.CredentialType.API_KEY);
+				}else {
+					destiAPIKeyButton.setSelected(true);
+				}
 			}
 		});
 		destiAPIKeyButton.setBounds(125, 322, 200, 50);
-		
+
 		frame.add(destiAPIKeyButton);
 
 		destCrenButton = new JRadioButton("With Credentials");
 		destCrenButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				destiAPIKeyButton.setSelected(false);
-				lblDestinationApiKey.setVisible(false);
-				textField_1.setVisible(false);
-				lblDestinationUsername.setVisible(true);
-				lblDestinationPassowrd.setVisible(true);
-				textField_4.setVisible(true);
-				textField_5.setVisible(true);
-
+				if (destCrenButton.isSelected()) {
+					destiAPIKeyButton.setSelected(false);
+					lblDestinationApiKey.setVisible(false);
+					textField_1.setVisible(false);
+					lblDestinationUsername.setVisible(true);
+					lblDestinationPassowrd.setVisible(true);
+					textField_4.setVisible(true);
+					textField_5.setVisible(true);
+					UserData.destinationCredential.setCredentialType(AccountVo.CredentialType.CREDENTIAL);
+				}else {
+					destCrenButton.setSelected(true);
+				}
 			}
 		});
 		destCrenButton.setBounds(363, 319, 200, 50);
 		frame.add(destCrenButton);
-		
-		
-		
-		//choose api key as credential by default
+
+		// choose api key as credential by default
 		destiAPIKeyButton.doClick();
 		rdbtnWithApiKey.doClick();
-		
+
 	}
 }

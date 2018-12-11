@@ -20,6 +20,7 @@ import javax.swing.JTextField;
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.SenderService;
+import com.esignlive.copytool.vo.SenderVo;
 
 public class Process2 {
 	private JPanel frame;
@@ -107,8 +108,9 @@ public class Process2 {
 						public void run() {
 							try {
 								errorMsg = null;
-								List<String> oldEnvSenders = SenderService.getInstance().getOldEnvSenders();
-
+								List<SenderVo> oldEnvSenders = SenderService.getInstance().getOldEnvSenders();
+								SenderService.getInstance().setNewEnvOwner();
+								
 								// after success
 								// add labels
 								scrollPane.setVisible(false);
@@ -164,7 +166,7 @@ public class Process2 {
 		panel.add(lblNewLabel);
 
 		JLabel lblNewEnvironmentSenders = new JLabel("New Environment ");
-		lblNewEnvironmentSenders.setBounds(465, 11, 149, 27);
+		lblNewEnvironmentSenders.setBounds(473, 11, 149, 27);
 		panel.add(lblNewEnvironmentSenders);
 
 		btnNewButton_1 = new JButton("=>");
@@ -172,12 +174,12 @@ public class Process2 {
 			public void actionPerformed(ActionEvent e) {
 
 				for (JLabel oldSenderEmailLabel : oldAndNewSenders.keySet()) {
-					String senderEmail = oldSenderEmailLabel.getText();
+					String senderEmail = oldSenderEmailLabel.getText().substring(0, oldSenderEmailLabel.getText().lastIndexOf(":") - 1);
 					oldAndNewSenders.get(oldSenderEmailLabel).setText(senderEmail);
 				}
 			}
 		});
-		btnNewButton_1.setBounds(300, 74, 61, 92);
+		btnNewButton_1.setBounds(330, 74, 61, 92);
 		panel.add(btnNewButton_1);
 
 		button = new JButton("<=");
@@ -190,7 +192,7 @@ public class Process2 {
 
 			}
 		});
-		button.setBounds(300, 186, 61, 92);
+		button.setBounds(330, 186, 61, 92);
 		panel.add(button);
 
 		// buttons
@@ -213,9 +215,9 @@ public class Process2 {
 
 				Map<JLabel, String> newSenderList = new LinkedHashMap<>();
 				for (JLabel iLabel : oldAndNewSenders.keySet()) {
-					newSenderList.put(iLabel, oldAndNewSenders.get(iLabel).getText());
+					newSenderList.put(iLabel, oldAndNewSenders.get(iLabel).getText().trim());
 				}
-
+				System.out.println(newSenderList);
 				new Thread(new Runnable() {
 
 					@Override
@@ -283,8 +285,7 @@ public class Process2 {
 							App.setMainFrame(new Process3().getFrame());
 						} catch (Exception ex) {
 							// to do
-							// show error msg, and allow try again, try again should be non effect to
-							// existing setting
+							// show error msg, and allow try again, try again should be non effect to existing setting
 							JTextArea ta = new JTextArea(20, 50);
 							ta.setText(ex.getMessage());
 							ta.setEditable(false);
@@ -303,6 +304,9 @@ public class Process2 {
 
 			}
 		});
+		
+		
+		
 		frame.add(btnNewButton);
 		
 				btnNewButton_2 = new JButton("<html>\r\nView</br>\r\nError</br>\r\nReport</br>\r\n</html>");
@@ -327,22 +331,22 @@ public class Process2 {
 
 	}
 
-	private void addLabels(List<String> oldEnvSenders) {
+	private void addLabels(List<SenderVo> oldEnvSenders) {
 		int y = 57;
 		for (int i = 0; i < oldEnvSenders.size(); i++) {
-			JLabel lblTestData = new JLabel(oldEnvSenders.get(i));
-			lblTestData.setBounds(17, y, 250, 20);
+			JLabel lblTestData = new JLabel(oldEnvSenders.get(i).getEmail() + " : " + oldEnvSenders.get(i).getSenderType());
+			lblTestData.setBounds(17, y, 310, 20);
 			panel.add(lblTestData);
 
 			// add new sender column
 			JTextField txtSampleText = new JTextField();
-			txtSampleText.setBounds(385, y - 1, 250, 22);
+			txtSampleText.setBounds(425, y - 1, 250, 22);
 			panel.add(txtSampleText);
 			oldAndNewSenders.put(lblTestData, txtSampleText);
 
 			// add invite status column
 			JLabel lblNewLabel_1 = new JLabel("");
-			lblNewLabel_1.setBounds(682, y, 20, 20);
+			lblNewLabel_1.setBounds(695, y, 20, 20);
 			panel.add(lblNewLabel_1);
 			oldSenderStatus.put(lblTestData, lblNewLabel_1);
 
