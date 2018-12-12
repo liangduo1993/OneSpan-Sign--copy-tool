@@ -20,6 +20,7 @@ import com.esignlive.copytool.service.EndpointService;
 import com.esignlive.copytool.utils.InstanceUtil;
 import com.esignlive.copytool.utils.StringUtils;
 import com.esignlive.copytool.vo.AccountVo;
+import javax.swing.JPasswordField;
 
 public class Process1 {
 
@@ -36,6 +37,7 @@ public class Process1 {
 	private JRadioButton rdbtnWithCredentials;
 	private JRadioButton destiAPIKeyButton;
 	private JRadioButton destCrenButton;
+	private JPasswordField passwordField;
 
 	/**
 	 * Create the application.
@@ -91,7 +93,7 @@ public class Process1 {
 		lblSourcePassowrd.setBounds(114, 155, 120, 38);
 		frame.add(lblSourcePassowrd);
 
-		textField_3 = new JTextField();
+		textField_3 = new JPasswordField();
 		textField_3.setColumns(10);
 		textField_3.setBounds(277, 160, 326, 29);
 		frame.add(textField_3);
@@ -109,7 +111,7 @@ public class Process1 {
 		lblDestinationPassowrd.setBounds(114, 418, 120, 38);
 		frame.add(lblDestinationPassowrd);
 
-		textField_5 = new JTextField();
+		textField_5 = new JPasswordField();
 		textField_5.setColumns(10);
 		textField_5.setBounds(277, 423, 326, 29);
 		frame.add(textField_5);
@@ -296,6 +298,8 @@ public class Process1 {
 		});
 		destCrenButton.setBounds(363, 319, 200, 50);
 		frame.add(destCrenButton);
+		
+	
 
 		// choose api key as credential by default
 		destiAPIKeyButton.doClick();

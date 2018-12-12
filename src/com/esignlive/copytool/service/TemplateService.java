@@ -247,7 +247,7 @@ public class TemplateService {
 				SenderVo sender = UserData.oldAndNewSenderMap.get(oldSenderEmail);
 				String newSenderEmail = null;
 				if (sender == null) {
-					newSenderEmail = UserData.destinationOwnerVo.getEmail();
+					newSenderEmail = UserData.destinationCredential.getSenderVo().getEmail();
 				} else {
 					newSenderEmail = sender.getEmail();
 				}
@@ -284,11 +284,8 @@ public class TemplateService {
 			retrieveTemplatesCallback(ownerCredential, templateIdAndName);
 
 			// other senders
-			for (String apiKey : UserData.sourceApiKeys) {
-				AccountVo senderCredential = new AccountVo();
-				senderCredential.setCredentialType(AccountVo.CredentialType.API_KEY);
-				senderCredential.setCredential(apiKey);
-				retrieveTemplatesCallback(senderCredential, templateIdAndName);
+			for (AccountVo apiKey : UserData.sourceApiKeys) {
+				retrieveTemplatesCallback(apiKey, templateIdAndName);
 			}
 		} catch (Exception e) {
 			// to do
@@ -308,7 +305,7 @@ public class TemplateService {
 			URL client = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) client.openConnection();
 			conn.setRequestProperty("Content-Type", "application/json");
-			HttpURLConnectionUtil.addCredential(conn, UserData.sourceCredential);
+			HttpURLConnectionUtil.addCredential(conn, credential);
 			conn.setRequestProperty("Accept", "application/json");
 
 			int responseCode = ((HttpURLConnection) conn).getResponseCode();
@@ -336,8 +333,10 @@ public class TemplateService {
 
 				for (int index = 0; index < resultPage1.length(); index++) {
 					JSONObject templateJSON = resultPage1.getJSONObject(index);
-
-					tempalteIdAndName.put(templateJSON.getString("id"), templateJSON.getString("name"));
+					
+					System.out.println(templateJSON.getString("id") + " : "+ templateJSON.getString("name"));
+					
+					tempalteIdAndName.put(templateJSON.getString("id"), templateJSON.getString("name") + " (from "+credential.getSenderVo().getEmail()+")");
 					TemplateVo templateVo = new TemplateVo();
 					templateVo.setIsCopy(false); // initialize
 					templateVo.setOldEnvSenderEmail(templateJSON.getJSONObject("sender").getString("email"));

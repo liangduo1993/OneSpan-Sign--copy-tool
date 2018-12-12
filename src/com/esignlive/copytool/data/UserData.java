@@ -1,28 +1,27 @@
 package com.esignlive.copytool.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.esignlive.copytool.vo.AccountVo;
 import com.esignlive.copytool.vo.LayoutVo;
-import com.esignlive.copytool.vo.OwnerVo;
 import com.esignlive.copytool.vo.SenderVo;
 import com.esignlive.copytool.vo.TemplateVo;
 
 public class UserData {
 	public static String sourceApiUrl;
 	public static AccountVo sourceCredential = new AccountVo();
-	public static Set<String> sourceApiKeys = new LinkedHashSet<>();// don't include owner credential
-	public static OwnerVo sourceOwnerVo = new OwnerVo();
+	public static List<AccountVo> sourceApiKeys = new ArrayList<>();// don't include owner credential
+//	public static OwnerVo sourceOwnerVo = new OwnerVo();
 	
 	
 	public static AccountVo destinationCredential = new AccountVo();
 	public static String destinationApiUrl;
-	public static Map<String, String> destinationApiKeys = new LinkedHashMap<>();// don't include owner credential
-	public static OwnerVo destinationOwnerVo = new OwnerVo();
+	public static List<AccountVo> destinationApiKeys = new ArrayList<>();// don't include owner credential
+//	public static OwnerVo destinationOwnerVo = new OwnerVo();
 	
 	
 	public static Map<String, SenderVo> oldSenderList = new HashMap<>();

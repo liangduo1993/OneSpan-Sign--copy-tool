@@ -1,6 +1,7 @@
 package com.esignlive.copytool.view;
 
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
@@ -16,10 +17,14 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import org.json.JSONException;
 
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.SenderService;
+import com.esignlive.copytool.vo.AccountVo;
 import com.esignlive.copytool.vo.SenderVo;
 
 public class Process2 {
@@ -31,8 +36,8 @@ public class Process2 {
 	private JButton btnNewButton;
 	private JPanel panel;
 
-	private Map<JLabel, JTextField> oldAndNewSenders = new LinkedHashMap<>();
-	private Map<JLabel, JLabel> oldSenderStatus = new LinkedHashMap<>();
+	private Map<JButton, JTextField> oldAndNewSenders = new LinkedHashMap<>();
+	private Map<JButton, JLabel> oldSenderStatus = new LinkedHashMap<>();
 
 	private String errorMsg;
 	private JButton btnNewButton_1;
@@ -94,8 +99,6 @@ public class Process2 {
 				btnNewButton_1.setEnabled(true);
 				button.setEnabled(true);
 
-				
-
 				if (UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
 					rdbtnYes.setText("Yes. (Loading sender list...)");
 					rdbtnNoallTemplates.setEnabled(false);
@@ -110,7 +113,7 @@ public class Process2 {
 								errorMsg = null;
 								List<SenderVo> oldEnvSenders = SenderService.getInstance().getOldEnvSenders();
 								SenderService.getInstance().setNewEnvOwner();
-								
+
 								// after success
 								// add labels
 								scrollPane.setVisible(false);
@@ -128,6 +131,8 @@ public class Process2 {
 										"Fail load old environment senders", JOptionPane.ERROR_MESSAGE);
 							}
 							rdbtnNoallTemplates.setEnabled(true);
+							// rdbtnYes.setText("Yes. (Please click on the email from list for more
+							// information!)");
 							rdbtnYes.setText("Yes.");
 						}
 					}).start();
@@ -173,13 +178,14 @@ public class Process2 {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				for (JLabel oldSenderEmailLabel : oldAndNewSenders.keySet()) {
-					String senderEmail = oldSenderEmailLabel.getText().substring(0, oldSenderEmailLabel.getText().lastIndexOf(":") - 1);
+				for (JButton oldSenderEmailLabel : oldAndNewSenders.keySet()) {
+					String senderEmail = oldSenderEmailLabel.getText().substring(0,
+							oldSenderEmailLabel.getText().lastIndexOf(":") - 1);
 					oldAndNewSenders.get(oldSenderEmailLabel).setText(senderEmail);
 				}
 			}
 		});
-		btnNewButton_1.setBounds(330, 74, 61, 92);
+		btnNewButton_1.setBounds(346, 74, 61, 92);
 		panel.add(btnNewButton_1);
 
 		button = new JButton("<=");
@@ -192,7 +198,7 @@ public class Process2 {
 
 			}
 		});
-		button.setBounds(330, 186, 61, 92);
+		button.setBounds(346, 186, 61, 92);
 		panel.add(button);
 
 		// buttons
@@ -213,8 +219,8 @@ public class Process2 {
 				// clear invite status labels
 				clearInvitationStatus();
 
-				Map<JLabel, String> newSenderList = new LinkedHashMap<>();
-				for (JLabel iLabel : oldAndNewSenders.keySet()) {
+				Map<JButton, String> newSenderList = new LinkedHashMap<>();
+				for (JButton iLabel : oldAndNewSenders.keySet()) {
 					newSenderList.put(iLabel, oldAndNewSenders.get(iLabel).getText().trim());
 				}
 				System.out.println(newSenderList);
@@ -222,13 +228,13 @@ public class Process2 {
 
 					@Override
 					public void run() {
-						Map<JLabel, Boolean> inviteResult = SenderService.getInstance().inviteSenders(newSenderList,
+						Map<JButton, Boolean> inviteResult = SenderService.getInstance().inviteSenders(newSenderList,
 								getInstance());
 
 						boolean canNext = true;
 
 						// set labels
-						for (JLabel oldSenderEmail : inviteResult.keySet()) {
+						for (JButton oldSenderEmail : inviteResult.keySet()) {
 							if (inviteResult.get(oldSenderEmail) != null) {
 								if (!inviteResult.get(oldSenderEmail)) {
 									canNext = false;
@@ -268,7 +274,7 @@ public class Process2 {
 				btnNewButton.setEnabled(false);
 				rdbtnYes.setEnabled(false);
 				rdbtnNoallTemplates.setEnabled(false);
-				
+
 				// set isCopySender
 				if (rdbtnYes.isSelected()) {
 					UserData.copySender = true;
@@ -285,7 +291,8 @@ public class Process2 {
 							App.setMainFrame(new Process3().getFrame());
 						} catch (Exception ex) {
 							// to do
-							// show error msg, and allow try again, try again should be non effect to existing setting
+							// show error msg, and allow try again, try again should be non effect to
+							// existing setting
 							JTextArea ta = new JTextArea(20, 50);
 							ta.setText(ex.getMessage());
 							ta.setEditable(false);
@@ -295,7 +302,7 @@ public class Process2 {
 
 							btnInviteSenders.setEnabled(true);
 							btnNewButton.setEnabled(true);
-							
+
 							rdbtnYes.setEnabled(true);
 							rdbtnNoallTemplates.setEnabled(true);
 						}
@@ -304,51 +311,129 @@ public class Process2 {
 
 			}
 		});
-		
-		
-		
+
 		frame.add(btnNewButton);
-		
-				btnNewButton_2 = new JButton("<html>\r\nView</br>\r\nError</br>\r\nReport</br>\r\n</html>");
-				btnNewButton_2.setBounds(242, 601, 162, 37);
-				frame.add(btnNewButton_2);
-				btnNewButton_2.setVisible(false);
-				
-						btnNewButton_2.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								// to do
-								System.out.println(errorMsg);
-				
-								JTextArea ta = new JTextArea(20, 50);
-								ta.setText(errorMsg);
-								ta.setEditable(false);
-				
-								JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Inviting Sender Error",
-										JOptionPane.ERROR_MESSAGE);
-				
-							}
-						});
+
+		btnNewButton_2 = new JButton("<html>\r\nView</br>\r\nError</br>\r\nReport</br>\r\n</html>");
+		btnNewButton_2.setBounds(242, 601, 162, 37);
+		frame.add(btnNewButton_2);
+		btnNewButton_2.setVisible(false);
+
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// to do
+				System.out.println(errorMsg);
+
+				JTextArea ta = new JTextArea(20, 50);
+				ta.setText(errorMsg);
+				ta.setEditable(false);
+
+				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Inviting Sender Error",
+						JOptionPane.ERROR_MESSAGE);
+
+			}
+		});
 
 	}
 
 	private void addLabels(List<SenderVo> oldEnvSenders) {
-		int y = 57;
+		// source owner information
+		JButton btnNewButton_4 = new JButton(UserData.sourceCredential.getSenderVo().getEmail() + " : "
+				+ UserData.sourceCredential.getSenderVo().getSenderType());
+		btnNewButton_4.setBackground(null);
+		btnNewButton_4.setHorizontalAlignment(SwingConstants.LEFT);
+		btnNewButton_4.setMargin(new Insets(0, 0, 0, 0));
+		btnNewButton_4.setOpaque(false);
+		btnNewButton_4.setContentAreaFilled(false);
+		btnNewButton_4.setBorderPainted(false);
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//
+//				JTextArea ta = new JTextArea(20, 50);
+//				ta.setText(UserData.sourceCredential.getSenderVo().getContent().toString());
+//				ta.setEditable(false);
+//
+//				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Source Environment Owner Informaton",
+//						JOptionPane.OK_OPTION);
+//				System.out.println(((JButton) e.getSource()).getText());
+
+			}
+		});
+		btnNewButton_4.setBounds(17, 57, 310, 20);
+		panel.add(btnNewButton_4);
+
+		// destination owner information
+		JButton btnNewButton_5 = new JButton(UserData.destinationCredential.getSenderVo().getEmail() + " : "
+				+ UserData.destinationCredential.getSenderVo().getSenderType());
+		btnNewButton_5.setBackground(null);
+		btnNewButton_5.setHorizontalAlignment(SwingConstants.LEFT);
+		btnNewButton_5.setMargin(new Insets(0, 0, 0, 0));
+		btnNewButton_5.setOpaque(false);
+		btnNewButton_5.setContentAreaFilled(false);
+		btnNewButton_5.setBorderPainted(false);
+		btnNewButton_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//				JTextArea ta = new JTextArea(20, 50);
+//				ta.setText(UserData.destinationCredential.getSenderVo().getContent().toString());
+//				ta.setEditable(false);
+//
+//				JOptionPane.showMessageDialog(frame, new JScrollPane(ta), "Destination Environment Owner Informaton",
+//						JOptionPane.OK_OPTION);
+//				System.out.println(((JButton) e.getSource()).getText());
+				
+				try {
+					String senderLimitation = UserData.destinationCredential.getSenderVo().getContent().getJSONObject("account").getJSONArray("licenses").getJSONObject(0).getJSONObject("plan").getJSONArray("quotas").getJSONObject(0).getString("limit");
+					JOptionPane.showMessageDialog(frame, "Sender Limitation: " + senderLimitation,
+							"Destination Environment Owner Info", JOptionPane.OK_OPTION);
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+				
+				
+
+			}
+		});
+		btnNewButton_5.setBounds(425, 57, 250, 20);
+		panel.add(btnNewButton_5);
+
+		// source sender list
+		int y = 87;
 		for (int i = 0; i < oldEnvSenders.size(); i++) {
-			JLabel lblTestData = new JLabel(oldEnvSenders.get(i).getEmail() + " : " + oldEnvSenders.get(i).getSenderType());
-			lblTestData.setBounds(17, y, 310, 20);
-			panel.add(lblTestData);
+			JButton btnNewButton_3 = new JButton(
+					oldEnvSenders.get(i).getEmail() + " : " + oldEnvSenders.get(i).getSenderType());
+			btnNewButton_3.setBackground(null);
+			btnNewButton_3.setHorizontalAlignment(SwingConstants.LEFT);
+			btnNewButton_3.setMargin(new Insets(0, 0, 0, 0));
+			btnNewButton_3.setOpaque(false);
+			btnNewButton_3.setContentAreaFilled(false);
+			// btnNewButton_3.setBorderPainted(false);
+			btnNewButton_3.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+
+					System.out.println(((JButton) e.getSource()).getText());
+
+				}
+			});
+			btnNewButton_3.setBounds(17, y, 310, 20);
+			panel.add(btnNewButton_3);
+
+			//
+			// JLabel lblTestData = new JLabel(oldEnvSenders.get(i).getEmail() + " : " +
+			// oldEnvSenders.get(i).getSenderType());
+			// lblTestData.setBounds(17, y, 310, 20);
+			// panel.add(lblTestData);
 
 			// add new sender column
 			JTextField txtSampleText = new JTextField();
 			txtSampleText.setBounds(425, y - 1, 250, 22);
 			panel.add(txtSampleText);
-			oldAndNewSenders.put(lblTestData, txtSampleText);
+			oldAndNewSenders.put(btnNewButton_3, txtSampleText);
 
 			// add invite status column
 			JLabel lblNewLabel_1 = new JLabel("");
 			lblNewLabel_1.setBounds(695, y, 20, 20);
 			panel.add(lblNewLabel_1);
-			oldSenderStatus.put(lblTestData, lblNewLabel_1);
+			oldSenderStatus.put(btnNewButton_3, lblNewLabel_1);
 
 			y += 30;
 
@@ -357,7 +442,7 @@ public class Process2 {
 
 	}
 
-	public void setInvitationStatus(JLabel oldSenderEmail, boolean inviteStatus) {
+	public void setInvitationStatus(JButton oldSenderEmail, boolean inviteStatus) {
 		scrollPane.setVisible(false);
 		String statusText = inviteStatus == true ? "√" : "×";
 		oldSenderStatus.get(oldSenderEmail).setText(statusText);
@@ -373,5 +458,4 @@ public class Process2 {
 
 		scrollPane.setVisible(true);
 	}
-
 }

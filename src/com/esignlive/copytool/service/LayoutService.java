@@ -326,7 +326,7 @@ public class LayoutService {
 				SenderVo sender = UserData.oldAndNewSenderMap.get(oldSenderEmail);
 				String newSenderEmail = null;
 				if (sender == null) {
-					newSenderEmail = UserData.destinationOwnerVo.getEmail();
+					newSenderEmail = UserData.destinationCredential.getSenderVo().getEmail();
 				} else {
 					newSenderEmail = sender.getEmail();
 				}
@@ -363,11 +363,8 @@ public class LayoutService {
 			retrieveLayoutsCallback(ownerCredential, LayoutIdAndName);
 
 			// other senders
-			for (String apiKey : UserData.sourceApiKeys) {
-				AccountVo senderCredential = new AccountVo();
-				senderCredential.setCredentialType(AccountVo.CredentialType.API_KEY);
-				senderCredential.setCredential(apiKey);
-				retrieveLayoutsCallback(senderCredential, LayoutIdAndName);
+			for (AccountVo apiKey : UserData.sourceApiKeys) {
+				retrieveLayoutsCallback(apiKey, LayoutIdAndName);
 			}
 		} catch (Exception e) {
 			// to do
@@ -387,7 +384,7 @@ public class LayoutService {
 			URL client = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) client.openConnection();
 			conn.setRequestProperty("Content-Type", "application/json");
-			HttpURLConnectionUtil.addCredential(conn, UserData.sourceCredential);
+			HttpURLConnectionUtil.addCredential(conn, credential);
 			conn.setRequestProperty("Accept", "application/json");
 
 			int responseCode = ((HttpURLConnection) conn).getResponseCode();
@@ -416,7 +413,7 @@ public class LayoutService {
 				for (int index = 0; index < resultPage1.length(); index++) {
 					JSONObject LayoutJSON = resultPage1.getJSONObject(index);
 
-					layoutIdAndName.put(LayoutJSON.getString("id"), LayoutJSON.getString("name"));
+					layoutIdAndName.put(LayoutJSON.getString("id"), LayoutJSON.getString("name") + " (from "+ credential.getSenderVo().getEmail()+")");
 					LayoutVo LayoutVo = new LayoutVo();
 					LayoutVo.setIsCopy(false); // initialize
 					LayoutVo.setOldEnvSenderEmail(LayoutJSON.getJSONObject("sender").getString("email"));

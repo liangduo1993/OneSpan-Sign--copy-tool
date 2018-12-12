@@ -29,10 +29,25 @@ public class Process0 {
 		frame.setBounds(100, 100, 800, 700);
 		frame.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel(
-				"<html>Welcome to OneSpan Sign Copy Tool<br/>\r\n\r\n<br/><br/><br/>\r\n\r\nWhat has been changed:<br/>\r\nProgram will no longer download documents from template(as in sandbox env, the documents will contains the watermark), instead, program will read files in desktop/docs folder. Please add this \"docs\" folder to your desktop and collect all original documents in this path.\r\n<br/><br/>\r\nRequirement:<br/>\r\nAll document files names should be same (current implementation) or a mapping naming convention (you can contact developer@esignlive.com or make a post to ask for a customized code) to your template document name.\r\n<br/><br/>\r\nAdditional Function:<br/>\r\nSelect by template id function: is the same with how you choose sender, put all template ids(in old environment) in a csv file, and input your path when prompting it.\r\n<br/><br/>\r\nPlease direct send an email to developer@esignlive.com if the tool doesn't work properly, and please feel free to make a post sharing your suggestions to this tool!\r\n\r\n\r\n\r\n</html>");
+		
+		String content = "<html>\r\n" + 
+				"Welcome to OneSpan Sign Copy Tool!<br/>\r\n" + 
+				"<br/>\r\n" + 
+				"Before you start:<br/>\r\n" + 
+				"To be able to completely copy your accounts, please make sure your account level settings are the same. You can contact our support team at sign.support@onespan.com to have these settled.<br/>\r\n" + 
+				"<br/>\r\n" + 
+				"Support Functions:<br/>\r\n" + 
+				"1. Support both credentials: API KEY and Username/Password;<br/>\r\n" + 
+				"2. Allow copy account within same Instance, you can invite new emails and map them to senders in source account (if new sender wasn't specified, all templates/layouts will be created by new owner);<br/>\r\n" + 
+				"3. Easily check account's Sender Limitation by clicking on the owner email;<br/>\r\n" + 
+				"4. Enable uploading original documents instead of downloading documents with watermark if source environment was sandbox. (you need to collect all original documents in one folder with the same names as in templates);<br/>\r\n" + 
+				"5. Allow choosing partial templates/layouts to copy.<br/>\r\n" + 
+				"<br/>\r\n" + 
+				"Please make a post on Developer Community (https://developer.esignlive.com/) if the tool doesn't work properly or you have any suggestions on this tool!<br/>\r\n" + 
+				"</html>";
+		JLabel lblNewLabel = new JLabel(content);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(201, 44, 423, 411);
+		lblNewLabel.setBounds(49, 44, 706, 411);
 		frame.add(lblNewLabel);
 
 		JButton btnNewButton = new JButton("Get Start");

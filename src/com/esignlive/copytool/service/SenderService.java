@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import org.json.JSONArray;
@@ -84,7 +84,8 @@ public class SenderService {
 
 						if (flag) {
 							JSONObject ownerAccount = senderJSON.getJSONObject("account");
-							UserData.sourceOwnerVo.setId(ownerAccount.getString("owner"));
+							UserData.sourceCredential.getSenderVo().setId(ownerAccount.getString("owner"));
+//							UserData.sourceCredential.setId(ownerAccount.getString("owner"));
 							flag = false;
 						}
 
@@ -97,10 +98,10 @@ public class SenderService {
 						if (type.equals("REGULAR")) {
 							senderVo.setSenderType(SenderVo.SenderType.REGULAR);
 						} else if (type.equals("MANAGER")) {
-							if (id.equals(UserData.sourceOwnerVo.getId())) {
+							if (id.equals(UserData.sourceCredential.getSenderVo().getId())) {
 								// type owner
 								senderVo.setSenderType(SenderVo.SenderType.OWNER);
-								UserData.sourceOwnerVo.setEmail(email);
+								UserData.sourceCredential.getSenderVo().setEmail(email);
 							} else {
 								// type manager
 								senderVo.setSenderType(SenderVo.SenderType.MANAGER);
@@ -110,8 +111,8 @@ public class SenderService {
 							UserData.oldSenderList.put(senderVo.getEmail(), senderVo);
 							senderVos.add(senderVo);
 						} else {
-							UserData.sourceOwnerVo.setEmail(senderVo.getEmail());
-							UserData.sourceOwnerVo.setId(senderVo.getId());
+							UserData.sourceCredential.setSenderVo(senderVo);
+//							UserData.sourceOwnerVo.setId(senderVo.getId());
 						}
 					}
 				} else {
@@ -170,7 +171,7 @@ public class SenderService {
 
 						if (flag) {
 							JSONObject ownerAccount = senderJSON.getJSONObject("account");
-							UserData.destinationOwnerVo.setId(ownerAccount.getString("owner"));
+							UserData.destinationCredential.getSenderVo().setId(ownerAccount.getString("owner"));
 							flag = false;
 						}
 
@@ -179,10 +180,15 @@ public class SenderService {
 
 						String type = senderJSON.getString("type");
 						if (type.equals("MANAGER")) {
-							if (id.equals(UserData.destinationOwnerVo.getId())) {
+							if (id.equals(UserData.destinationCredential.getSenderVo().getId())) {
 								// type owner
-								UserData.destinationOwnerVo.setEmail(email);
-								System.out.println("new env owner: " + UserData.destinationOwnerVo);
+								SenderVo ownerSenderVo = new SenderVo();
+								ownerSenderVo.setContent(senderJSON);
+								ownerSenderVo.setEmail(email);
+								ownerSenderVo.setId(id);
+								ownerSenderVo.setSenderType(SenderVo.SenderType.OWNER);
+								UserData.destinationCredential.setSenderVo(ownerSenderVo);
+								System.out.println("new env owner: " + UserData.destinationCredential);
 								return;
 							}
 						}
@@ -197,16 +203,16 @@ public class SenderService {
 		}
 	}
 
-	public Map<JLabel, Boolean> inviteSenders(Map<JLabel, String> senderEmails, Process2 view) {
+	public Map<JButton, Boolean> inviteSenders(Map<JButton, String> senderEmails, Process2 view) {
 		// try invite senders
-		Map<JLabel, Boolean> result = new LinkedHashMap<>();
+		Map<JButton, Boolean> result = new LinkedHashMap<>();
 		Map<String, SenderVo> oldAndNewSenderMap = new LinkedHashMap<>();
 
 		StringBuilder errorMsg = new StringBuilder(200);
 
-		for (Map.Entry<JLabel, String> entry : senderEmails.entrySet()) {
+		for (Map.Entry<JButton, String> entry : senderEmails.entrySet()) {
 			String newSenderEmail = entry.getValue();
-			JLabel oldSenderEmail = entry.getKey();
+			JButton oldSenderEmail = entry.getKey();
 			if (!StringUtils.isEmpty(newSenderEmail)) {// new sender email is not null
 				try {
 					String oldEmail = oldSenderEmail.getText().substring(0,
@@ -220,7 +226,14 @@ public class SenderService {
 					oldAndNewSenderMap.put(oldEmail, invitedSender);
 					try {
 						String apiKey = getApiKey(false, invitedSender.getId());
-						UserData.destinationApiKeys.put(invitedSender.getEmail(), apiKey);
+						AccountVo senderAccountVo = new AccountVo();
+						senderAccountVo.setApiKey(apiKey);
+						senderAccountVo.setCredential(apiKey);
+						senderAccountVo.setCredentialType(AccountVo.CredentialType.API_KEY);
+						senderAccountVo.setSenderVo(sender);
+//						senderAccountVo.setEmail(newSenderEmail);
+						
+						UserData.destinationApiKeys.add(senderAccountVo);
 						result.put(oldSenderEmail, true);
 					} catch (Exception ex) {
 						throw ex;
@@ -305,19 +318,25 @@ public class SenderService {
 		}
 
 		// set new env owner
-		if (StringUtils.isEmpty(UserData.destinationOwnerVo.getId())) {
+		if (StringUtils.isEmpty(UserData.destinationCredential.getSenderVo().getId())) {
 			setNewEnvOwner();
 		}
 
 		// retreive all api keys in old env
-		Set<String> apiList = UserData.sourceApiKeys;
+		List<AccountVo> apiList = UserData.sourceApiKeys;
 		Map<String, SenderVo> oldSenderList = UserData.oldSenderList;
 
 		for (SenderVo sender : oldSenderList.values()) {
 			String apiKey;
 			try {
 				apiKey = getApiKey(true, sender.getId());
-				apiList.add(apiKey);
+				AccountVo senderAccountVo = new AccountVo();
+				senderAccountVo.setApiKey(apiKey);
+				senderAccountVo.setCredential(apiKey);
+				senderAccountVo.setCredentialType(AccountVo.CredentialType.API_KEY);
+//				senderAccountVo.setEmail(sender.getEmail());
+				senderAccountVo.setSenderVo(sender);
+				apiList.add(senderAccountVo);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException("Error retrieving all senders' api key, please try again!");

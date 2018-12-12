@@ -10,6 +10,7 @@ public class AccountVo {
 	private String apiKey;
 	private String username;
 	private String password;
+	private SenderVo senderVo = new SenderVo();
 
 	public CredentialType getCredentialType() {
 		return credentialType;
@@ -49,6 +50,14 @@ public class AccountVo {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public SenderVo getSenderVo() {
+		return senderVo;
+	}
+
+	public void setSenderVo(SenderVo senderVo) {
+		this.senderVo = senderVo;
 	}
 
 	@Override
