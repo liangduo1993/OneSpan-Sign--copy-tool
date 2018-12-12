@@ -197,29 +197,6 @@ public class SenderService {
 		}
 	}
 
-	// public String getOwnerVo(EslClient eslClient) {
-	// int i = 1;
-	//
-	// Map<String, Sender> accountMembers =
-	// eslClient.getAccountService().getSenders(Direction.ASCENDING,
-	// new PageRequest(i, 5));
-	//
-	// while (!accountMembers.isEmpty()) {
-	// for (Map.Entry<String, Sender> entry : accountMembers.entrySet()) {
-	//
-	// if (entry.getValue().getType().equals(SenderType.MANAGER)) {
-	// return entry.getValue().getEmail();
-	// }
-	// i++;
-	// }
-	// accountMembers =
-	// eslClient.getAccountService().getSenders(Direction.ASCENDING, new
-	// PageRequest(i, 5));
-	// }
-	//
-	// throw new RuntimeException("Can't find owner email! ");
-	// }
-	//
 	public Map<JLabel, Boolean> inviteSenders(Map<JLabel, String> senderEmails, Process2 view) {
 		// try invite senders
 		Map<JLabel, Boolean> result = new LinkedHashMap<>();

@@ -87,8 +87,7 @@ public class Process4 {
 							@Override
 							public void run() {
 								errorMsg = null;
-								Map<String, Boolean> copyTemplate = LayoutService.getInstance().copyLayouts(null,
-										getInstance());
+								Map<String, Boolean> copyTemplate = LayoutService.getInstance().copyLayout(getInstance());
 
 								btnNewButton.setEnabled(true);
 								btnNewButton.setText("Copy Layouts");
@@ -151,28 +150,6 @@ public class Process4 {
 		JLabel lblTemplateListIn = new JLabel("Layout List in Old Environment");
 		lblTemplateListIn.setBounds(34, 11, 328, 14);
 		panel.add(lblTemplateListIn);
-
-		JLabel lblDoYouWant_2 = new JLabel("Do you want to specify Layout IDs?");
-		lblDoYouWant_2.setBounds(76, 172, 287, 14);
-		lblDoYouWant_2.setVisible(false);
-		frame.add(lblDoYouWant_2);
-
-		JRadioButton radioButton_2 = new JRadioButton("Yes.");
-		radioButton_2.setVisible(false);
-		radioButton_2.setBounds(369, 168, 54, 23);
-		frame.add(radioButton_2);
-
-		JRadioButton radioButton_3 = new JRadioButton("No.");
-		radioButton_3.setSelected(true);
-		radioButton_3.setVisible(false);
-		radioButton_3.setBounds(452, 168, 46, 23);
-		frame.add(radioButton_3);
-
-		JButton button = new JButton("Select your folder location");
-		button.setEnabled(false);
-		button.setVisible(false);
-		button.setBounds(545, 159, 191, 40);
-		frame.add(button);
 
 		rdbtnYes = new JRadioButton("Yes.");
 		rdbtnYes.addActionListener(new ActionListener() {

@@ -350,7 +350,7 @@ public class TemplateService {
 			}
 
 			pageNum += 50;
-		} while (resultPage1.length() > 0);
+		} while (resultPage1.length() == 50);
 	}
 
 	public String containsOriginalDocument(String documentName) {
