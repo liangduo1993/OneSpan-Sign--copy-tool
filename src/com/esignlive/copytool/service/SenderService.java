@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,11 @@ import org.json.JSONObject;
 
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.utils.HttpURLConnectionUtil;
-import com.esignlive.copytool.utils.StringUtils;
+import com.esignlive.copytool.utils.StringUtil;
 import com.esignlive.copytool.view.Process2;
 import com.esignlive.copytool.vo.AccountVo;
 import com.esignlive.copytool.vo.SenderVo;
+import com.esignlive.copytool.vo.AccountVo.CredentialType;
 
 public class SenderService {
 	private static SenderService endpointService;
@@ -108,7 +110,10 @@ public class SenderService {
 							}
 						}
 						if (senderVo.getSenderType() != SenderVo.SenderType.OWNER) {
-							UserData.oldSenderList.put(senderVo.getEmail(), senderVo);
+							AccountVo accountVo = new AccountVo();
+							accountVo.setCredentialType(CredentialType.API_KEY);
+							accountVo.setSenderVo(senderVo);
+							UserData.oldSenderMap.put(senderVo.getEmail(), accountVo);
 							senderVos.add(senderVo);
 						} else {
 							UserData.sourceCredential.setSenderVo(senderVo);
@@ -123,7 +128,7 @@ public class SenderService {
 		} catch (Exception e) {
 			throw e;
 		}
-		System.out.println(UserData.oldSenderList);
+		System.out.println(UserData.oldSenderMap);
 		return senderVos;
 	}
 
@@ -206,35 +211,33 @@ public class SenderService {
 	public Map<JButton, Boolean> inviteSenders(Map<JButton, String> senderEmails, Process2 view) {
 		// try invite senders
 		Map<JButton, Boolean> result = new LinkedHashMap<>();
-		Map<String, SenderVo> oldAndNewSenderMap = new LinkedHashMap<>();
+		Map<String, AccountVo> oldAndNewSenderMap = UserData.newSenderMap;
 
 		StringBuilder errorMsg = new StringBuilder(200);
 
 		for (Map.Entry<JButton, String> entry : senderEmails.entrySet()) {
 			String newSenderEmail = entry.getValue();
 			JButton oldSenderEmail = entry.getKey();
-			if (!StringUtils.isEmpty(newSenderEmail)) {// new sender email is not null
+			if (!StringUtil.isEmpty(newSenderEmail)) {// new sender email is not null
 				try {
 					String oldEmail = oldSenderEmail.getText().substring(0,
 							oldSenderEmail.getText().lastIndexOf(":") - 1);
-					SenderVo sender = UserData.oldSenderList.get(oldEmail);
+					SenderVo sender = UserData.oldSenderMap.get(oldEmail).getSenderVo();
 					sender.setEmail(newSenderEmail);
 					sender.getContent().put("email", newSenderEmail);
 
 					SenderVo invitedSender = inviteSender(UserData.destinationApiUrl + "/account/senders",
 							sender.getContent(), sender);
-					oldAndNewSenderMap.put(oldEmail, invitedSender);
 					try {
 						String apiKey = getApiKey(false, invitedSender.getId());
 						AccountVo senderAccountVo = new AccountVo();
 						senderAccountVo.setApiKey(apiKey);
 						senderAccountVo.setCredential(apiKey);
 						senderAccountVo.setCredentialType(AccountVo.CredentialType.API_KEY);
-						senderAccountVo.setSenderVo(sender);
-//						senderAccountVo.setEmail(newSenderEmail);
+						senderAccountVo.setSenderVo(invitedSender);
 						
-						UserData.destinationApiKeys.add(senderAccountVo);
 						result.put(oldSenderEmail, true);
+						oldAndNewSenderMap.put(oldEmail, senderAccountVo);
 					} catch (Exception ex) {
 						throw ex;
 					}
@@ -253,9 +256,6 @@ public class SenderService {
 
 		// return error msg
 		view.setErrorMsg(errorMsg.toString());
-
-		// set user data
-		UserData.oldAndNewSenderMap = oldAndNewSenderMap;
 
 		return result;
 	}
@@ -313,30 +313,23 @@ public class SenderService {
 	// to check
 	public void senderNextProcessCallback() throws IOException, JSONException {
 		// set old env sender
-		if (UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
+		if (UserData.oldSenderMap == null || UserData.oldSenderMap.size() == 0) {
 			getOldEnvSenders();
 		}
 
 		// set new env owner
-		if (StringUtils.isEmpty(UserData.destinationCredential.getSenderVo().getId())) {
+		if (StringUtil.isEmpty(UserData.destinationCredential.getSenderVo().getId())) {
 			setNewEnvOwner();
 		}
 
 		// retreive all api keys in old env
-		List<AccountVo> apiList = UserData.sourceApiKeys;
-		Map<String, SenderVo> oldSenderList = UserData.oldSenderList;
+		Map<String, AccountVo> oldSenderList = UserData.oldSenderMap;
 
-		for (SenderVo sender : oldSenderList.values()) {
+		for (AccountVo sender : oldSenderList.values()) {
 			String apiKey;
 			try {
-				apiKey = getApiKey(true, sender.getId());
-				AccountVo senderAccountVo = new AccountVo();
-				senderAccountVo.setApiKey(apiKey);
-				senderAccountVo.setCredential(apiKey);
-				senderAccountVo.setCredentialType(AccountVo.CredentialType.API_KEY);
-//				senderAccountVo.setEmail(sender.getEmail());
-				senderAccountVo.setSenderVo(sender);
-				apiList.add(senderAccountVo);
+				apiKey = getApiKey(true, sender.getSenderVo().getId());
+				sender.setCredential(apiKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException("Error retrieving all senders' api key, please try again!");

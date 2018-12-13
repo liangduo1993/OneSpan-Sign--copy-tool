@@ -99,7 +99,7 @@ public class Process2 {
 				btnNewButton_1.setEnabled(true);
 				button.setEnabled(true);
 
-				if (UserData.oldSenderList == null || UserData.oldSenderList.size() == 0) {
+				if (UserData.oldSenderMap == null || UserData.oldSenderMap.size() == 0) {
 					rdbtnYes.setText("Yes. (Loading sender list...)");
 					rdbtnNoallTemplates.setEnabled(false);
 					btnInviteSenders.setEnabled(false);
@@ -275,12 +275,12 @@ public class Process2 {
 				rdbtnYes.setEnabled(false);
 				rdbtnNoallTemplates.setEnabled(false);
 
-				// set isCopySender
-				if (rdbtnYes.isSelected()) {
-					UserData.copySender = true;
-				} else if (rdbtnNoallTemplates.isSelected()) {
-					UserData.copySender = false;
-				}
+//				// set isCopySender
+//				if (rdbtnYes.isSelected()) {
+//					UserData.copySender = true;
+//				} else if (rdbtnNoallTemplates.isSelected()) {
+//					UserData.copySender = false;
+//				}
 
 				new Thread(new Runnable() {
 

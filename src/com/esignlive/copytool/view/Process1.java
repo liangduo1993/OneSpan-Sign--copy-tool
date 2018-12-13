@@ -18,7 +18,7 @@ import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.EndpointService;
 import com.esignlive.copytool.utils.InstanceUtil;
-import com.esignlive.copytool.utils.StringUtils;
+import com.esignlive.copytool.utils.StringUtil;
 import com.esignlive.copytool.vo.AccountVo;
 import javax.swing.JPasswordField;
 
@@ -172,22 +172,22 @@ public class Process1 {
 							System.out.println(UserData.sourceApiUrl);
 							System.out.println(UserData.destinationApiUrl);
 							
-							if (!StringUtils.isEmpty(textField.getText())) {
+							if (!StringUtil.isEmpty(textField.getText())) {
 								UserData.sourceCredential.setApiKey(textField.getText().trim());
 							}
-							if (!StringUtils.isEmpty(textField_2.getText())) {
+							if (!StringUtil.isEmpty(textField_2.getText())) {
 								UserData.sourceCredential.setUsername(textField_2.getText().trim());
 							}
-							if (!StringUtils.isEmpty(textField_3.getText())) {
+							if (!StringUtil.isEmpty(textField_3.getText())) {
 								UserData.sourceCredential.setPassword(textField_3.getText().trim());
 							}
-							if (!StringUtils.isEmpty(textField_1.getText())) {
+							if (!StringUtil.isEmpty(textField_1.getText())) {
 								UserData.destinationCredential.setApiKey(textField_1.getText().trim());
 							}
-							if (!StringUtils.isEmpty(textField_4.getText())) {
+							if (!StringUtil.isEmpty(textField_4.getText())) {
 								UserData.destinationCredential.setUsername(textField_4.getText().trim());
 							}
-							if (!StringUtils.isEmpty(textField_5.getText())) {
+							if (!StringUtil.isEmpty(textField_5.getText())) {
 								UserData.destinationCredential.setPassword(textField_5.getText().trim());
 							}
 

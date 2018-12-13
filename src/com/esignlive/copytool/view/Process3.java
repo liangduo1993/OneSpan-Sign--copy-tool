@@ -395,12 +395,12 @@ public class Process3 {
 			panel.add(chckbxNewCheckBoxTemp);
 
 			JLabel lblTestData = new JLabel(array[i].getKey() + " : " + array[i].getValue());
-			lblTestData.setBounds(50, y, 550, 20);
+			lblTestData.setBounds(50, y, 570, 20);
 			panel.add(lblTestData);
 
 			// add copy template status column
 			JLabel lblNewLabel_1 = new JLabel("");
-			lblNewLabel_1.setBounds(600, y, 20, 20);
+			lblNewLabel_1.setBounds(620, y, 20, 20);
 			panel.add(lblNewLabel_1);
 			oldEnvTemplateCopyStatus.put(array[i].getKey(), lblNewLabel_1);
 
