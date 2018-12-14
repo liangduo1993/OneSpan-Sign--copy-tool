@@ -139,10 +139,16 @@ public class PackageService {
 		return doPostMultipart.getString("id");
 	}
 
-	public String createLayoutInNewEnv(AccountVo accountVo, JSONObject packageJSON) throws Exception {
+	public String createLayoutInNewEnv(AccountVo accountVo, String packageId, String documentId) throws Exception {
 		String requestURL = UserData.destinationApiUrl + "/layouts";
-		packageJSON.put("type", "LAYOUT");
-		JSONObject doPost = RestService.getInstance().doPost(requestURL, accountVo, packageJSON);
+		String payload = "{\"documents\": [\r\n" + 
+				"    {\r\n" + 
+				"      \"id\": \""+documentId+"\"\r\n" + 
+				"    }\r\n" + 
+				"  ],\r\n" + 
+				"  \"id\": \""+packageId+"\"}";
+		JSONObject payloadJSON = new JSONObject(payload);
+		JSONObject doPost = RestService.getInstance().doPost(requestURL, accountVo, payloadJSON);
 		return doPost.getString("id");
 	}
 

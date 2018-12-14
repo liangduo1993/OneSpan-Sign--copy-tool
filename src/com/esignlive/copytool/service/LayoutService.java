@@ -97,7 +97,7 @@ public class LayoutService {
 			PackageService.getInstance().copyVisibility(oldLayoutID, packageId, accountVo);
 
 			// #step2. create layout from package
-			layoutId = PackageService.getInstance().createLayoutInNewEnv(accountVo, layoutById);
+			layoutId = PackageService.getInstance().createLayoutInNewEnv(accountVo, packageId, prepareDocument.get(0).getId());
 
 		} catch (Exception e) {
 			e.printStackTrace();
