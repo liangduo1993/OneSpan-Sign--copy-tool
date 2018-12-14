@@ -35,9 +35,9 @@ public class PackageService {
 
 	public void injectSenderPersonalInfo(JSONObject signerJSON, AccountVo accountVo, String key) throws JSONException {
 		if (accountVo.getSenderVo().getContent().has(key)) {
-			String string = accountVo.getSenderVo().getContent().getString(key);
-			if (StringUtil.isEmpty(string)) {
-				string = null;
+			Object string = accountVo.getSenderVo().getContent().getString(key);
+			if (StringUtil.isEmpty((String)string)) {
+				string = JSONObject.NULL;
 			}
 			signerJSON.put(key, string);
 		}
@@ -46,12 +46,12 @@ public class PackageService {
 	public JSONObject preparePackageMetadata(String packageId, AccountVo accountVo, String packageType)
 			throws Exception, JSONException {
 		// get template metadata
-		JSONObject templateById = getPackageById(packageId, UserData.sourceCredential);
-		templateById.put("sender", new JSONObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
-		templateById.put("status", "DRAFT");
-		templateById.put("type", packageType);
+		JSONObject newPackage = getPackageById(packageId, UserData.sourceCredential);
+		newPackage.put("sender", new JSONObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
+		newPackage.put("status", "DRAFT");
+		newPackage.put("type", packageType);
 		// replace firstname,lastname,company,title for sender
-		JSONArray roleArray = templateById.getJSONArray("roles");
+		JSONArray roleArray = newPackage.getJSONArray("roles");
 		for (int i = 0; i < roleArray.length(); i++) {
 			JSONObject roleJSON = roleArray.getJSONObject(i);
 
@@ -69,10 +69,13 @@ public class PackageService {
 						// continue
 					}
 				}
+				System.out.println("========");
+				System.out.println(signerJSON.toString());
+				System.out.println("========");
 				break;
 			}
 		}
-		return templateById;
+		return newPackage;
 	}
 
 	public List<DocumentVo> prepareDocument(JSONObject packageJSON, String oldPackageId) throws Exception {
@@ -139,15 +142,22 @@ public class PackageService {
 		return doPostMultipart.getString("id");
 	}
 
-	public String createLayoutInNewEnv(AccountVo accountVo, String packageId, String documentId) throws Exception {
+	public String createLayoutInNewEnv(AccountVo accountVo, String packageId, String documentId, JSONObject layoutJSON) throws Exception {
 		String requestURL = UserData.destinationApiUrl + "/layouts";
-		String payload = "{\"documents\": [\r\n" + 
+		String payload = "{\r\n" + 
+				"  \"type\": \"LAYOUT\",\r\n" + 
+				"  \"description\": \""+layoutJSON.getString("description")+"\",\r\n" + 
+				"  \"name\": \""+layoutJSON.getString("name")+"\",\r\n" + 
+				"  \"visibility\": \""+layoutJSON.getString("visibility")+"\",\r\n" + 
+				"  \"id\": \""+packageId+"\",\r\n" + 
+				"  \"documents\": [\r\n" + 
 				"    {\r\n" + 
 				"      \"id\": \""+documentId+"\"\r\n" + 
 				"    }\r\n" + 
-				"  ],\r\n" + 
-				"  \"id\": \""+packageId+"\"}";
+				"  ]\r\n" + 
+				"}";
 		JSONObject payloadJSON = new JSONObject(payload);
+		System.out.println(payload);
 		JSONObject doPost = RestService.getInstance().doPost(requestURL, accountVo, payloadJSON);
 		return doPost.getString("id");
 	}

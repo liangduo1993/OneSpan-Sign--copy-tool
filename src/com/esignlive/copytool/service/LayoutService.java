@@ -81,6 +81,7 @@ public class LayoutService {
 		String layoutId = null;
 		String packageId = null;
 		try {
+			System.out.println("sender info: " + accountVo);
 			// #step1. create a package with layout
 			// prepare new template metadata
 			JSONObject layoutById = PackageService.getInstance().preparePackageMetadata(oldLayoutID, accountVo,
@@ -88,25 +89,27 @@ public class LayoutService {
 
 			// download and document content and remove default consent
 			List<DocumentVo> prepareDocument = PackageService.getInstance().prepareDocument(layoutById, oldLayoutID);
-			
+
 			if (prepareDocument.size() != 1) {
 				throw new RuntimeException("Copying layout:" + oldLayoutID + " error!");
 			}
 			packageId = PackageService.getInstance().createPackageInNewEnv(accountVo, prepareDocument, layoutById);
+			System.out.println("package id: " + packageId);
 			// copy document visibility
 			PackageService.getInstance().copyVisibility(oldLayoutID, packageId, accountVo);
 
 			// #step2. create layout from package
-			layoutId = PackageService.getInstance().createLayoutInNewEnv(accountVo, packageId, prepareDocument.get(0).getId());
-
+			layoutId = PackageService.getInstance().createLayoutInNewEnv(accountVo, packageId,
+					prepareDocument.get(0).getId(), layoutById);
+			System.out.println("layout id: " + layoutId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		} finally {
 			// #step3. delete package
-			if (packageId != null) {
-				RestService.getInstance().doDelete(UserData.destinationApiUrl + "/packages/" + packageId);
-			}
+//			if (packageId != null) {
+//				RestService.getInstance().doDelete(UserData.destinationApiUrl + "/packages/" + packageId);
+//			}
 		}
 		return layoutId;
 	}
@@ -115,12 +118,12 @@ public class LayoutService {
 		// set Layout list in user data
 		Map<String, String> LayoutIdAndName = new LinkedHashMap<>();
 
-		// old env owner
-		AccountVo ownerCredential = UserData.sourceCredential;
 		try {
-			retrieveLayoutsCallback(ownerCredential, LayoutIdAndName);
+			// old env owner
+			retrieveLayoutsCallback(UserData.sourceCredential, LayoutIdAndName);
 
 			// other senders
+			System.out.println("old sender map: "+UserData.oldSenderMap);
 			for (AccountVo apiKey : UserData.oldSenderMap.values()) {
 				retrieveLayoutsCallback(apiKey, LayoutIdAndName);
 			}
@@ -149,16 +152,18 @@ public class LayoutService {
 				}
 
 				for (int index = 0; index < resultPage1.length(); index++) {
-					JSONObject LayoutJSON = resultPage1.getJSONObject(index);
-
-					layoutIdAndName.put(LayoutJSON.getString("id"),
-							LayoutJSON.getString("name") + " (from " + credential.getSenderVo().getEmail() + ")");
-					LayoutVo LayoutVo = new LayoutVo();
-					LayoutVo.setIsCopy(false); // initialize
-					LayoutVo.setOldEnvSenderEmail(LayoutJSON.getJSONObject("sender").getString("email"));
-					LayoutVo.setLayoutId(LayoutJSON.getString("id"));
-					LayoutVo.setContent(LayoutJSON);
-					oldEnvLayoutList.put(LayoutJSON.getString("id"), LayoutVo);
+					JSONObject layoutJSON = resultPage1.getJSONObject(index);
+					if (layoutJSON.getJSONObject("sender").getString("email")
+							.equals(credential.getSenderVo().getEmail())) {
+						layoutIdAndName.put(layoutJSON.getString("id"),
+								layoutJSON.getString("name") + " (from " + credential.getSenderVo().getEmail() + ")");
+						LayoutVo layoutVo = new LayoutVo();
+						layoutVo.setIsCopy(false); // initialize
+						layoutVo.setOldEnvSenderEmail(layoutJSON.getJSONObject("sender").getString("email"));
+						layoutVo.setLayoutId(layoutJSON.getString("id"));
+						layoutVo.setContent(layoutJSON);
+						oldEnvLayoutList.put(layoutJSON.getString("id"), layoutVo);
+					}
 				}
 			} catch (Exception e) {
 				throw e;

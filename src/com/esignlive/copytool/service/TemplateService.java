@@ -135,7 +135,7 @@ public class TemplateService {
 	public void retrieveTemplatesCallback(AccountVo credential, Map<String, String> tempalteIdAndName)
 			throws IOException, JSONException {
 		Map<String, TemplateVo> oldEnvTemplateList = UserData.oldEnvTemplates;
-
+		System.out.println("Currently checking for sender: " + credential.getSenderVo().getEmail() + " : " + credential.getCredential());
 		JSONArray resultPage1;
 		int pageNum = 1;
 		do {
@@ -152,16 +152,19 @@ public class TemplateService {
 				for (int index = 0; index < resultPage1.length(); index++) {
 					JSONObject templateJSON = resultPage1.getJSONObject(index);
 
-					System.out.println(templateJSON.getString("id") + " : " + templateJSON.getString("name"));
+					if (templateJSON.getJSONObject("sender").getString("email")
+							.equals(credential.getSenderVo().getEmail())) {
+						System.out.println(templateJSON.getString("id") + " : " + templateJSON.getString("name"));
 
-					tempalteIdAndName.put(templateJSON.getString("id"),
-							templateJSON.getString("name") + " (from " + credential.getSenderVo().getEmail() + ")");
-					TemplateVo templateVo = new TemplateVo();
-					templateVo.setIsCopy(false); // initialize
-					templateVo.setOldEnvSenderEmail(templateJSON.getJSONObject("sender").getString("email"));
-					templateVo.setTemplateId(templateJSON.getString("id"));
-					templateVo.setContent(templateJSON);
-					oldEnvTemplateList.put(templateJSON.getString("id"), templateVo);
+						tempalteIdAndName.put(templateJSON.getString("id"),
+								templateJSON.getString("name") + " (from " + credential.getSenderVo().getEmail() + ")");
+						TemplateVo templateVo = new TemplateVo();
+						templateVo.setIsCopy(false); // initialize
+						templateVo.setOldEnvSenderEmail(templateJSON.getJSONObject("sender").getString("email"));
+						templateVo.setTemplateId(templateJSON.getString("id"));
+						templateVo.setContent(templateJSON);
+						oldEnvTemplateList.put(templateJSON.getString("id"), templateVo);
+					}
 				}
 			} catch (Exception e) {
 				throw e;

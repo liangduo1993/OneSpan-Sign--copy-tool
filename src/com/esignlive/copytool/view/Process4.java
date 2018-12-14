@@ -74,7 +74,7 @@ public class Process4 {
 		JButton btnNewButton = new JButton("Copy Layouts");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				clearInvitationStatus();
 				new Thread(new Runnable() {
 
 					@Override
@@ -299,12 +299,12 @@ public class Process4 {
 			panel.add(chckbxNewCheckBoxTemp);
 
 			JLabel lblTestData = new JLabel(array[i].getKey() + " : " + array[i].getValue());
-			lblTestData.setBounds(50, y, 550, 20);
+			lblTestData.setBounds(50, y, 590, 20);
 			panel.add(lblTestData);
 
 			// add copy template status column
 			JLabel lblNewLabel_1 = new JLabel("");
-			lblNewLabel_1.setBounds(600, y, 20, 20);
+			lblNewLabel_1.setBounds(640, y, 20, 20);
 			panel.add(lblNewLabel_1);
 			oldEnvLayoutCopyStatus.put(array[i].getKey(), lblNewLabel_1);
 
@@ -323,6 +323,16 @@ public class Process4 {
 		scrollPane.setVisible(false);
 		String statusText = copyStatus == true ? "√" : "×";
 		oldEnvLayoutCopyStatus.get(oldTemplateId).setText(statusText);
+		scrollPane.setVisible(true);
+	}
+	
+	public void clearInvitationStatus() {
+		scrollPane.setVisible(false);
+
+		for (JLabel jLabel : oldEnvLayoutCopyStatus.values()) {
+			jLabel.setText("");
+		}
+
 		scrollPane.setVisible(true);
 	}
 

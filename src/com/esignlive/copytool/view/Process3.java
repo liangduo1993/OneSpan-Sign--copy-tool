@@ -79,7 +79,10 @@ public class Process3 {
 		JButton btnNewButton = new JButton("Copy Templates");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				clearInvitationStatus();
+				
+				
+				
 				new Thread(new Runnable() {
 
 					@Override
@@ -419,6 +422,16 @@ public class Process3 {
 		scrollPane.setVisible(false);
 		String statusText = copyStatus == true ? "√" : "×";
 		oldEnvTemplateCopyStatus.get(oldTemplateId).setText(statusText);
+		scrollPane.setVisible(true);
+	}
+	
+	public void clearInvitationStatus() {
+		scrollPane.setVisible(false);
+
+		for (JLabel jLabel : oldEnvTemplateCopyStatus.values()) {
+			jLabel.setText("");
+		}
+
 		scrollPane.setVisible(true);
 	}
 

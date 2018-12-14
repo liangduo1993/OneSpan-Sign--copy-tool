@@ -250,15 +250,5 @@ public class RestService {
 		}
 	}
 
-	//
-	// public static void main(String[] args) {
-	// String docName = "OS_Document Extraction+Customized Field
-	// Validator_vfinal_09042018-DG EDITS.docx";
-	//// String contentType = URLConnection.guessContentTypeFromName(docName);
-	// String contentType = MimeTypeUtil.getContentTypeByFileName(docName);
-	// System.out.println(contentType);
-	//
-	//
-	// }
 
 }

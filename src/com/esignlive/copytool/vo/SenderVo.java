@@ -2,7 +2,7 @@ package com.esignlive.copytool.vo;
 
 import org.json.JSONObject;
 
-public class SenderVo {
+public class SenderVo{
 	public enum SenderType {
 		OWNER, MANAGER, REGULAR
 	}

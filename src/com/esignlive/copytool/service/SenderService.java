@@ -87,7 +87,7 @@ public class SenderService {
 						if (flag) {
 							JSONObject ownerAccount = senderJSON.getJSONObject("account");
 							UserData.sourceCredential.getSenderVo().setId(ownerAccount.getString("owner"));
-//							UserData.sourceCredential.setId(ownerAccount.getString("owner"));
+							// UserData.sourceCredential.setId(ownerAccount.getString("owner"));
 							flag = false;
 						}
 
@@ -117,7 +117,7 @@ public class SenderService {
 							senderVos.add(senderVo);
 						} else {
 							UserData.sourceCredential.setSenderVo(senderVo);
-//							UserData.sourceOwnerVo.setId(senderVo.getId());
+							// UserData.sourceOwnerVo.setId(senderVo.getId());
 						}
 					}
 				} else {
@@ -128,7 +128,25 @@ public class SenderService {
 		} catch (Exception e) {
 			throw e;
 		}
-		System.out.println(UserData.oldSenderMap);
+		
+		
+		for (AccountVo sender : UserData.oldSenderMap.values()) {
+			String apiKey;
+			try {
+				apiKey = getApiKey(true, sender.getSenderVo().getId());
+				sender.setCredential(apiKey);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException("Error retrieving all senders' api key, please try again!");
+			}
+		}
+		System.out.println("old sender map: ");
+		Map<String, AccountVo> oldSenderMap = UserData.oldSenderMap;
+		for (Map.Entry<String, AccountVo> senderVo2 : oldSenderMap.entrySet()) {
+			System.out.println(senderVo2.getValue());
+		}
+		System.out.println("=====");
+		
 		return senderVos;
 	}
 
@@ -222,7 +240,11 @@ public class SenderService {
 				try {
 					String oldEmail = oldSenderEmail.getText().substring(0,
 							oldSenderEmail.getText().lastIndexOf(":") - 1);
-					SenderVo sender = UserData.oldSenderMap.get(oldEmail).getSenderVo();
+					SenderVo oldSender = UserData.oldSenderMap.get(oldEmail).getSenderVo();
+					SenderVo sender = new SenderVo();
+					sender.setContent(oldSender.getContent());
+					sender.setId(oldSender.getId());
+					sender.setSenderType(oldSender.getSenderType());
 					sender.setEmail(newSenderEmail);
 					sender.getContent().put("email", newSenderEmail);
 
@@ -235,7 +257,7 @@ public class SenderService {
 						senderAccountVo.setCredential(apiKey);
 						senderAccountVo.setCredentialType(AccountVo.CredentialType.API_KEY);
 						senderAccountVo.setSenderVo(invitedSender);
-						
+
 						result.put(oldSenderEmail, true);
 						oldAndNewSenderMap.put(oldEmail, senderAccountVo);
 					} catch (Exception ex) {
@@ -314,7 +336,9 @@ public class SenderService {
 	public void senderNextProcessCallback() throws IOException, JSONException {
 		// set old env sender
 		if (UserData.oldSenderMap == null || UserData.oldSenderMap.size() == 0) {
-			getOldEnvSenders();
+			List<SenderVo> oldEnvSenders = getOldEnvSenders();
+			System.out.println("=== " + oldEnvSenders);
+
 		}
 
 		// set new env owner
@@ -322,19 +346,6 @@ public class SenderService {
 			setNewEnvOwner();
 		}
 
-		// retreive all api keys in old env
-		Map<String, AccountVo> oldSenderList = UserData.oldSenderMap;
-
-		for (AccountVo sender : oldSenderList.values()) {
-			String apiKey;
-			try {
-				apiKey = getApiKey(true, sender.getSenderVo().getId());
-				sender.setCredential(apiKey);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException("Error retrieving all senders' api key, please try again!");
-			}
-		}
 	}
 
 	public String getApiKey(boolean isSource, String senderId) throws IOException, JSONException {
