@@ -115,7 +115,12 @@ public class RestService {
 
 		if (sourceResponseCode == 200) {
 			return new JSONObject(response.toString());
-		} else {
+		} else if (sourceResponseCode == 204) {
+			return null;
+		} else if(sourceResponseCode == 401 && response.toString().contains("accountSuspended")) {
+			return null;
+		}
+		else {
 			throw new RuntimeException(response.toString());
 		}
 	}
@@ -249,6 +254,5 @@ public class RestService {
 			throw new RuntimeException(response.toString());
 		}
 	}
-
 
 }

@@ -1,36 +1,19 @@
 package com.esignlive.copytool.service;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.esignlive.copytool.data.UserData;
-import com.esignlive.copytool.utils.HttpURLConnectionUtil;
 import com.esignlive.copytool.view.Process3;
 import com.esignlive.copytool.vo.AccountVo;
+import com.esignlive.copytool.vo.AccountVo.SenderStatus;
 import com.esignlive.copytool.vo.DocumentVo;
-import com.esignlive.copytool.vo.SenderVo;
 import com.esignlive.copytool.vo.TemplateVo;
 
 public class TemplateService {
@@ -67,16 +50,12 @@ public class TemplateService {
 				boolean copySuccess = false;
 				try {
 					String copyTemplateFromOldAccount = copyTemplateFromOldAccount(oldTemplateID, newSender);
-					System.out.println(copyTemplateFromOldAccount);
+
 					copySuccess = true;
 				} catch (Exception e) {
-					// to do
-					// add error msg
 					System.out.println(e.getMessage());
 					errorMsg.append(e.getMessage()).append("\n");
 				}
-				// update view
-				// to do
 				view.setCopyStatus(oldTemplateID, copySuccess);
 				result.put(oldTemplateID, copySuccess);
 			}
@@ -98,18 +77,20 @@ public class TemplateService {
 
 			// create new template in destination env
 			newPackageId = PackageService.getInstance().createPackageInNewEnv(accountVo, prepareDocument, templateById);
-
+			System.out.println("new package id: " + newPackageId);
 			// ===========copy reminders=========
-			PackageService.getInstance().copyReminders(oldTemplateID, newPackageId, accountVo);
+			try {
+				PackageService.getInstance().copyReminders(oldTemplateID, newPackageId, accountVo);
 
-			// ==========copy document visibility========
-			PackageService.getInstance().copyVisibility(oldTemplateID, newPackageId, accountVo);
-
+				// ==========copy document visibility========
+				PackageService.getInstance().copyVisibility(oldTemplateID, newPackageId, accountVo);
+			} catch (Exception ex) {
+				// to do
+			}
 		} catch (Exception e) {
 			throw e;
 		}
 		return newPackageId;
-
 	}
 
 	public Map<String, String> getOldEnvTemplates() throws Exception {
@@ -123,7 +104,9 @@ public class TemplateService {
 
 			// other senders
 			for (AccountVo apiKey : UserData.oldSenderMap.values()) {
-				retrieveTemplatesCallback(apiKey, templateIdAndName);
+				if (apiKey.getSenderStatus() == SenderStatus.ACTIVE) {
+					retrieveTemplatesCallback(apiKey, templateIdAndName);
+				}
 			}
 		} catch (Exception e) {
 			// to do
@@ -135,7 +118,8 @@ public class TemplateService {
 	public void retrieveTemplatesCallback(AccountVo credential, Map<String, String> tempalteIdAndName)
 			throws IOException, JSONException {
 		Map<String, TemplateVo> oldEnvTemplateList = UserData.oldEnvTemplates;
-		System.out.println("Currently checking for sender: " + credential.getSenderVo().getEmail() + " : " + credential.getCredential());
+		System.out.println("Currently checking for sender: " + credential.getSenderVo().getEmail() + " : "
+				+ credential.getCredential());
 		JSONArray resultPage1;
 		int pageNum = 1;
 		do {

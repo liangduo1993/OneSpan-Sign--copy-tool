@@ -27,6 +27,7 @@ import com.esignlive.copytool.view.Process2;
 import com.esignlive.copytool.vo.AccountVo;
 import com.esignlive.copytool.vo.SenderVo;
 import com.esignlive.copytool.vo.AccountVo.CredentialType;
+import com.esignlive.copytool.vo.AccountVo.SenderStatus;
 
 public class SenderService {
 	private static SenderService endpointService;
@@ -87,6 +88,7 @@ public class SenderService {
 						if (flag) {
 							JSONObject ownerAccount = senderJSON.getJSONObject("account");
 							UserData.sourceCredential.getSenderVo().setId(ownerAccount.getString("owner"));
+							UserData.sourceCredential.setSenderStatus(SenderStatus.ACTIVE);
 							// UserData.sourceCredential.setId(ownerAccount.getString("owner"));
 							flag = false;
 						}
@@ -113,6 +115,14 @@ public class SenderService {
 							AccountVo accountVo = new AccountVo();
 							accountVo.setCredentialType(CredentialType.API_KEY);
 							accountVo.setSenderVo(senderVo);
+
+							try {
+								accountVo.setSenderStatus(
+										SenderStatus.valueOf(senderVo.getContent().getString("status")));
+							} catch (Exception e) {
+								// to do
+							}
+
 							UserData.oldSenderMap.put(senderVo.getEmail(), accountVo);
 							senderVos.add(senderVo);
 						} else {
@@ -125,11 +135,12 @@ public class SenderService {
 				}
 				pageIndex += 50;
 			}
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			throw e;
 		}
-		
-		
+
 		for (AccountVo sender : UserData.oldSenderMap.values()) {
 			String apiKey;
 			try {
@@ -146,7 +157,7 @@ public class SenderService {
 			System.out.println(senderVo2.getValue());
 		}
 		System.out.println("=====");
-		
+
 		return senderVos;
 	}
 
@@ -257,6 +268,7 @@ public class SenderService {
 						senderAccountVo.setCredential(apiKey);
 						senderAccountVo.setCredentialType(AccountVo.CredentialType.API_KEY);
 						senderAccountVo.setSenderVo(invitedSender);
+						senderAccountVo.setSenderStatus(SenderStatus.ACTIVE);
 
 						result.put(oldSenderEmail, true);
 						oldAndNewSenderMap.put(oldEmail, senderAccountVo);

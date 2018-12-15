@@ -28,6 +28,7 @@ import com.esignlive.copytool.vo.AccountVo;
 import com.esignlive.copytool.vo.DocumentVo;
 import com.esignlive.copytool.vo.LayoutVo;
 import com.esignlive.copytool.vo.SenderVo;
+import com.esignlive.copytool.vo.AccountVo.SenderStatus;
 
 public class LayoutService {
 	private static LayoutService endpointService;
@@ -107,9 +108,10 @@ public class LayoutService {
 			throw e;
 		} finally {
 			// #step3. delete package
-//			if (packageId != null) {
-//				RestService.getInstance().doDelete(UserData.destinationApiUrl + "/packages/" + packageId);
-//			}
+			// if (packageId != null) {
+			// RestService.getInstance().doDelete(UserData.destinationApiUrl + "/packages/"
+			// + packageId);
+			// }
 		}
 		return layoutId;
 	}
@@ -123,9 +125,11 @@ public class LayoutService {
 			retrieveLayoutsCallback(UserData.sourceCredential, LayoutIdAndName);
 
 			// other senders
-			System.out.println("old sender map: "+UserData.oldSenderMap);
+			System.out.println("old sender map: " + UserData.oldSenderMap);
 			for (AccountVo apiKey : UserData.oldSenderMap.values()) {
-				retrieveLayoutsCallback(apiKey, LayoutIdAndName);
+				if (apiKey.getSenderStatus() == SenderStatus.ACTIVE) {
+					retrieveLayoutsCallback(apiKey, LayoutIdAndName);
+				}
 			}
 		} catch (Exception e) {
 			// to do

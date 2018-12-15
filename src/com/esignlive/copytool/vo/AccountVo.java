@@ -5,12 +5,17 @@ public class AccountVo {
 		API_KEY, CREDENTIAL
 	}
 
+	public enum SenderStatus {
+		INVITED, ACTIVE, LOCKED
+	}
+
 	private CredentialType credentialType = CredentialType.API_KEY;
 	private String credential;
 	private String apiKey;
 	private String username;
 	private String password;
 	private SenderVo senderVo = new SenderVo();
+	private SenderStatus senderStatus;
 
 	public CredentialType getCredentialType() {
 		return credentialType;
@@ -60,12 +65,18 @@ public class AccountVo {
 		this.senderVo = senderVo;
 	}
 
+	public SenderStatus getSenderStatus() {
+		return senderStatus;
+	}
+
+	public void setSenderStatus(SenderStatus senderStatus) {
+		this.senderStatus = senderStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "AccountVo [credentialType=" + credentialType + ", credential=" + credential + ", apiKey=" + apiKey
 				+ ", username=" + username + ", password=" + password + ", senderVo=" + senderVo + "]";
 	}
-
-
 
 }

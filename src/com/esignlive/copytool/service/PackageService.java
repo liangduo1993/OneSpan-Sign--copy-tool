@@ -36,7 +36,7 @@ public class PackageService {
 	public void injectSenderPersonalInfo(JSONObject signerJSON, AccountVo accountVo, String key) throws JSONException {
 		if (accountVo.getSenderVo().getContent().has(key)) {
 			Object string = accountVo.getSenderVo().getContent().getString(key);
-			if (StringUtil.isEmpty((String)string)) {
+			if (StringUtil.isEmpty((String) string)) {
 				string = JSONObject.NULL;
 			}
 			signerJSON.put(key, string);
@@ -49,6 +49,8 @@ public class PackageService {
 		JSONObject newPackage = getPackageById(packageId, UserData.sourceCredential);
 		newPackage.put("sender", new JSONObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
 		newPackage.put("status", "DRAFT");
+		newPackage.put("due", JSONObject.NULL);
+
 		newPackage.put("type", packageType);
 		// replace firstname,lastname,company,title for sender
 		JSONArray roleArray = newPackage.getJSONArray("roles");
@@ -142,20 +144,14 @@ public class PackageService {
 		return doPostMultipart.getString("id");
 	}
 
-	public String createLayoutInNewEnv(AccountVo accountVo, String packageId, String documentId, JSONObject layoutJSON) throws Exception {
+	public String createLayoutInNewEnv(AccountVo accountVo, String packageId, String documentId, JSONObject layoutJSON)
+			throws Exception {
 		String requestURL = UserData.destinationApiUrl + "/layouts";
-		String payload = "{\r\n" + 
-				"  \"type\": \"LAYOUT\",\r\n" + 
-				"  \"description\": \""+layoutJSON.getString("description")+"\",\r\n" + 
-				"  \"name\": \""+layoutJSON.getString("name")+"\",\r\n" + 
-				"  \"visibility\": \""+layoutJSON.getString("visibility")+"\",\r\n" + 
-				"  \"id\": \""+packageId+"\",\r\n" + 
-				"  \"documents\": [\r\n" + 
-				"    {\r\n" + 
-				"      \"id\": \""+documentId+"\"\r\n" + 
-				"    }\r\n" + 
-				"  ]\r\n" + 
-				"}";
+		String payload = "{\r\n" + "  \"type\": \"LAYOUT\",\r\n" + "  \"description\": \""
+				+ layoutJSON.getString("description") + "\",\r\n" + "  \"name\": \"" + layoutJSON.getString("name")
+				+ "\",\r\n" + "  \"visibility\": \"" + layoutJSON.getString("visibility") + "\",\r\n" + "  \"id\": \""
+				+ packageId + "\",\r\n" + "  \"documents\": [\r\n" + "    {\r\n" + "      \"id\": \"" + documentId
+				+ "\"\r\n" + "    }\r\n" + "  ]\r\n" + "}";
 		JSONObject payloadJSON = new JSONObject(payload);
 		System.out.println(payload);
 		JSONObject doPost = RestService.getInstance().doPost(requestURL, accountVo, payloadJSON);
@@ -167,9 +163,11 @@ public class PackageService {
 		JSONObject reminder = RestService.getInstance()
 				.doGet(UserData.sourceApiUrl + "/packages/" + oldTemplateID + "/reminders", UserData.sourceCredential);
 		// replace packageId
-		reminder.put("packageId", newPackageId);
-		RestService.getInstance().doPost(UserData.destinationApiUrl + "/packages/" + newPackageId + "/reminders",
-				accountVo, reminder);
+		if (reminder != null) {
+			reminder.put("packageId", newPackageId);
+			RestService.getInstance().doPost(UserData.destinationApiUrl + "/packages/" + newPackageId + "/reminders",
+					accountVo, reminder);
+		}
 	}
 
 	public void copyVisibility(String oldTemplateID, String newPackageId, AccountVo accountVo)
@@ -177,9 +175,11 @@ public class PackageService {
 		JSONObject visibility = RestService.getInstance().doGet(
 				UserData.sourceApiUrl + "/packages/" + oldTemplateID + "/documents/visibility",
 				UserData.sourceCredential);
-		RestService.getInstance().doPost(
-				UserData.destinationApiUrl + "/packages/" + newPackageId + "/documents/visibility", accountVo,
-				visibility);
+		if (visibility != null) {
+			RestService.getInstance().doPost(
+					UserData.destinationApiUrl + "/packages/" + newPackageId + "/documents/visibility", accountVo,
+					visibility);
+		}
 	}
 
 }
