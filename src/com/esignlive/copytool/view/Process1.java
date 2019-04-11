@@ -60,60 +60,60 @@ public class Process1 {
 		frame.setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Source API KEY:");
-		lblNewLabel.setBounds(114, 123, 120, 38);
+		lblNewLabel.setBounds(50, 150, 120, 38);
 		frame.add(lblNewLabel);
 
 		JLabel lblSourceEnvironment = new JLabel("Source Environment:");
-		lblSourceEnvironment.setBounds(114, 204, 120, 38);
+		lblSourceEnvironment.setBounds(50, 231, 120, 38);
 		frame.add(lblSourceEnvironment);
 
 		JLabel lblDestinationApiKey = new JLabel("Destination API KEY:");
-		lblDestinationApiKey.setBounds(114, 389, 120, 38);
+		lblDestinationApiKey.setBounds(50, 411, 120, 38);
 		frame.add(lblDestinationApiKey);
 
 		JLabel lblDestinationEnvironment = new JLabel("Destination Environment:");
-		lblDestinationEnvironment.setBounds(114, 470, 144, 38);
+		lblDestinationEnvironment.setBounds(50, 492, 144, 38);
 		frame.add(lblDestinationEnvironment);
 
 		textField = new JTextField();
-		textField.setBounds(277, 128, 326, 29);
+		textField.setBounds(213, 155, 326, 29);
 		frame.add(textField);
 		textField.setColumns(10);
 
 		JLabel lblSourceUsername = new JLabel("Source Username");
-		lblSourceUsername.setBounds(114, 104, 120, 38);
+		lblSourceUsername.setBounds(50, 131, 120, 38);
 		frame.add(lblSourceUsername);
 
 		textField_2 = new JTextField();
 		textField_2.setColumns(10);
-		textField_2.setBounds(277, 109, 326, 29);
+		textField_2.setBounds(213, 136, 326, 29);
 		frame.add(textField_2);
 
 		JLabel lblSourcePassowrd = new JLabel("Source Passowrd");
-		lblSourcePassowrd.setBounds(114, 155, 120, 38);
+		lblSourcePassowrd.setBounds(50, 182, 120, 38);
 		frame.add(lblSourcePassowrd);
 
 		textField_3 = new JPasswordField();
 		textField_3.setColumns(10);
-		textField_3.setBounds(277, 160, 326, 29);
+		textField_3.setBounds(213, 187, 326, 29);
 		frame.add(textField_3);
 
 		JLabel lblDestinationUsername = new JLabel("Destination Username");
-		lblDestinationUsername.setBounds(114, 367, 120, 38);
+		lblDestinationUsername.setBounds(50, 389, 120, 38);
 		frame.add(lblDestinationUsername);
 
 		textField_4 = new JTextField();
 		textField_4.setColumns(10);
-		textField_4.setBounds(277, 372, 326, 29);
+		textField_4.setBounds(213, 394, 326, 29);
 		frame.add(textField_4);
 
 		JLabel lblDestinationPassowrd = new JLabel("Destination Passowrd");
-		lblDestinationPassowrd.setBounds(114, 418, 120, 38);
+		lblDestinationPassowrd.setBounds(50, 440, 120, 38);
 		frame.add(lblDestinationPassowrd);
 
 		textField_5 = new JPasswordField();
 		textField_5.setColumns(10);
-		textField_5.setBounds(277, 423, 326, 29);
+		textField_5.setBounds(213, 445, 326, 29);
 		frame.add(textField_5);
 
 		JProgressBar progressBar = new JProgressBar();
@@ -127,17 +127,17 @@ public class Process1 {
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
-		comboBox.setBounds(277, 201, 286, 38);
+		comboBox.setBounds(213, 228, 286, 38);
 		frame.add(comboBox);
 
 		textField_1 = new JTextField();
 		textField_1.setColumns(10);
-		textField_1.setBounds(277, 389, 326, 29);
+		textField_1.setBounds(213, 411, 326, 29);
 		frame.add(textField_1);
 
 		JComboBox comboBox_1 = new JComboBox();
 		comboBox_1.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
-		comboBox_1.setBounds(277, 462, 286, 38);
+		comboBox_1.setBounds(213, 484, 286, 38);
 		frame.add(comboBox_1);
 
 		JButton btnNextProcess = new JButton("Next Process");
@@ -147,7 +147,7 @@ public class Process1 {
 				App.setMainFrame(new Process2().getFrame());
 			}
 		});
-		btnNextProcess.setBounds(502, 576, 152, 38);
+		btnNextProcess.setBounds(591, 578, 152, 38);
 		frame.add(btnNextProcess);
 
 		btnNewButton = new JButton("Test Connection");
@@ -214,7 +214,7 @@ public class Process1 {
 			}
 
 		});
-		btnNewButton.setBounds(145, 576, 144, 38);
+		btnNewButton.setBounds(599, 97, 144, 38);
 		frame.add(btnNewButton);
 
 		rdbtnWithApiKey = new JRadioButton("With API KEY");
@@ -234,7 +234,7 @@ public class Process1 {
 				}
 			}
 		});
-		rdbtnWithApiKey.setBounds(125, 58, 200, 50);
+		rdbtnWithApiKey.setBounds(61, 85, 200, 50);
 
 		frame.add(rdbtnWithApiKey);
 
@@ -255,7 +255,7 @@ public class Process1 {
 				}
 			}
 		});
-		rdbtnWithCredentials.setBounds(363, 55, 200, 50);
+		rdbtnWithCredentials.setBounds(299, 82, 200, 50);
 		frame.add(rdbtnWithCredentials);
 
 		destiAPIKeyButton = new JRadioButton("With API KEY");
@@ -275,7 +275,7 @@ public class Process1 {
 				}
 			}
 		});
-		destiAPIKeyButton.setBounds(125, 322, 200, 50);
+		destiAPIKeyButton.setBounds(61, 344, 200, 50);
 
 		frame.add(destiAPIKeyButton);
 
@@ -296,8 +296,12 @@ public class Process1 {
 				}
 			}
 		});
-		destCrenButton.setBounds(363, 319, 200, 50);
+		destCrenButton.setBounds(299, 341, 200, 50);
 		frame.add(destCrenButton);
+		
+		JButton button = new JButton("Test Connection");
+		button.setBounds(599, 358, 144, 38);
+		frame.add(button);
 		
 	
 

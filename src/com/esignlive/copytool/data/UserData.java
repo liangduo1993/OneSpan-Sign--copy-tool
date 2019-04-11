@@ -1,10 +1,13 @@
 package com.esignlive.copytool.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.esignlive.copytool.vo.AccountVo;
+import com.esignlive.copytool.vo.FileVo;
 import com.esignlive.copytool.vo.LayoutVo;
 import com.esignlive.copytool.vo.TemplateVo;
 
@@ -14,6 +17,13 @@ public class UserData {
 	
 	public static AccountVo destinationCredential = new AccountVo();
 	public static String destinationApiUrl;
+	
+	
+	//1:copy all senders and match senders
+	//2:copy all senders create all by owner
+	//3:copy current sender
+	public static int copyMode = 0;
+	
 	
 	public static Map<String, AccountVo> oldSenderMap = new HashMap<>();//<old sender email, old AccountVo>
 	public static Map<String, AccountVo> newSenderMap = new HashMap<>();//<old sender email, new AccountVo>

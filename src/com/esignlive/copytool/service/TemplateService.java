@@ -54,7 +54,7 @@ public class TemplateService {
 					copySuccess = true;
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
-					errorMsg.append(e.getMessage()).append("\n");
+					errorMsg.append(oldTemplateID + " : " + e.getMessage()).append("\n");
 				}
 				view.setCopyStatus(oldTemplateID, copySuccess);
 				result.put(oldTemplateID, copySuccess);
@@ -81,11 +81,13 @@ public class TemplateService {
 			// ===========copy reminders=========
 			try {
 				PackageService.getInstance().copyReminders(oldTemplateID, newPackageId, accountVo);
-
+				System.out.println("copy reminder successfully!");
 				// ==========copy document visibility========
 				PackageService.getInstance().copyVisibility(oldTemplateID, newPackageId, accountVo);
+				System.out.println("copy visibility successfully!");
 			} catch (Exception ex) {
 				// to do
+				throw new RuntimeException("Copy Reminder or Visibility fail for template: " + oldTemplateID);
 			}
 		} catch (Exception e) {
 			throw e;

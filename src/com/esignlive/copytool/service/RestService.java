@@ -37,13 +37,13 @@ public class RestService {
 	public void doDelete(String url) throws IOException {
 		URL sourceClient = new URL(url);
 		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
-		sourceConn.setRequestProperty("Content-Type", "application/json");
+		sourceConn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(sourceConn, UserData.destinationCredential);
-		sourceConn.setRequestProperty("Accept", "application/json");
+		sourceConn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
 		sourceConn.setRequestMethod("DELETE");
 
 		int sourceResponseCode = ((HttpURLConnection) sourceConn).getResponseCode();
-		System.out.println(sourceResponseCode);
+		System.out.println(url + " : " +sourceResponseCode);
 
 		Reader ir = sourceResponseCode == 200 ? new InputStreamReader(sourceConn.getInputStream())
 				: new InputStreamReader(sourceConn.getErrorStream());
@@ -68,9 +68,9 @@ public class RestService {
 
 		byte[] byteArray;
 		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
-		conn.setRequestProperty("Content-Type", "application/json");
+		conn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
-		conn.setRequestProperty("Accept", "application/pdf");
+		conn.setRequestProperty("Accept", "application/pdf; esl-api-version=11.21");
 
 		InputStream inputStream = conn.getInputStream();
 		inputStream = conn.getInputStream();
@@ -93,34 +93,62 @@ public class RestService {
 	public JSONObject doGet(String url, AccountVo accountVo) throws IOException, JSONException {
 		URL client = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
-		conn.setRequestProperty("Content-Type", "application/json");
+		conn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
-		conn.setRequestProperty("Accept", "application/json");
+		conn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
 
 		int sourceResponseCode = ((HttpURLConnection) conn).getResponseCode();
-		System.out.println(sourceResponseCode);
-
-		Reader ir = sourceResponseCode == 200 ? new InputStreamReader(conn.getInputStream())
-				: new InputStreamReader(conn.getErrorStream());
-		BufferedReader in = new BufferedReader(ir);
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-
-		in.close();
-		conn.disconnect();
+		System.out.println(url + " : " +sourceResponseCode);
 
 		if (sourceResponseCode == 200) {
+			Reader ir = new InputStreamReader(conn.getInputStream());
+			BufferedReader in = new BufferedReader(ir);
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+
+			in.close();
+			conn.disconnect();
+
 			return new JSONObject(response.toString());
-		} else if (sourceResponseCode == 204) {
+		} else if (sourceResponseCode == 204) {	//no content
 			return null;
-		} else if(sourceResponseCode == 401 && response.toString().contains("accountSuspended")) {
+		}else if (sourceResponseCode == 403) {	//no access (package has been deleted)
 			return null;
 		}
-		else {
+		else if (sourceResponseCode == 401) {
+			Reader ir = new InputStreamReader(conn.getErrorStream());
+			BufferedReader in = new BufferedReader(ir);
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+
+			in.close();
+			conn.disconnect();
+
+			if (response.toString().contains("accountSuspended")) {
+				return null;
+			} else {
+				throw new RuntimeException(response.toString());
+			}
+		} else {
+			Reader ir = new InputStreamReader(conn.getErrorStream());
+			BufferedReader in = new BufferedReader(ir);
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+
+			in.close();
+			conn.disconnect();
 			throw new RuntimeException(response.toString());
 		}
 	}
@@ -181,6 +209,7 @@ public class RestService {
 			writer.append("--" + boundary + "--").append(CRLF).flush();
 		} catch (IOException ex) {
 			System.err.println(ex);
+			throw ex;
 		}
 
 		int responseCode = ((HttpURLConnection) connection).getResponseCode();
@@ -216,9 +245,9 @@ public class RestService {
 			throws IOException, JSONException {
 		URL sourceClient = new URL(url);
 		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
-		sourceConn.setRequestProperty("Content-Type", "application/json");
+		sourceConn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(sourceConn, accountVo);
-		sourceConn.setRequestProperty("Accept", "application/json");
+		sourceConn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
 		sourceConn.setRequestMethod("POST");
 		sourceConn.setDoOutput(true);
 		sourceConn.setDoInput(true);
@@ -229,7 +258,7 @@ public class RestService {
 		os.close();
 
 		int sourceResponseCode = ((HttpURLConnection) sourceConn).getResponseCode();
-		System.out.println(sourceResponseCode);
+		System.out.println(url + " : " +sourceResponseCode);
 
 		Reader ir = sourceResponseCode == 200 ? new InputStreamReader(sourceConn.getInputStream())
 				: new InputStreamReader(sourceConn.getErrorStream());
@@ -250,6 +279,9 @@ public class RestService {
 			} catch (Exception e) {
 				return null;
 			}
+		}
+		if (sourceResponseCode == 204) {
+			return null;
 		} else {
 			throw new RuntimeException(response.toString());
 		}

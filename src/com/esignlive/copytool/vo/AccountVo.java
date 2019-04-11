@@ -9,6 +9,11 @@ public class AccountVo {
 		INVITED, ACTIVE, LOCKED
 	}
 
+	// both manager and owner has full access
+	public enum SenderType {
+		REGULAR, MANAGER, OWNER
+	}
+
 	private CredentialType credentialType = CredentialType.API_KEY;
 	private String credential;
 	private String apiKey;
@@ -16,6 +21,7 @@ public class AccountVo {
 	private String password;
 	private SenderVo senderVo = new SenderVo();
 	private SenderStatus senderStatus;
+	private SenderType senderType;
 
 	public CredentialType getCredentialType() {
 		return credentialType;
@@ -73,10 +79,19 @@ public class AccountVo {
 		this.senderStatus = senderStatus;
 	}
 
+	public SenderType getSenderType() {
+		return senderType;
+	}
+
+	public void setSenderType(SenderType senderType) {
+		this.senderType = senderType;
+	}
+
 	@Override
 	public String toString() {
 		return "AccountVo [credentialType=" + credentialType + ", credential=" + credential + ", apiKey=" + apiKey
-				+ ", username=" + username + ", password=" + password + ", senderVo=" + senderVo + "]";
+				+ ", username=" + username + ", password=" + password + ", senderVo=" + senderVo + ", senderStatus="
+				+ senderStatus + ", senderType=" + senderType + "]";
 	}
 
 }

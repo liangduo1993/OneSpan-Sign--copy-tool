@@ -195,7 +195,7 @@ public class Process4 {
 								e1.printStackTrace();
 								// show connection test fail dialog
 								JOptionPane.showMessageDialog(frame, e1.getMessage(),
-										"Fail load old environment Layouts", JOptionPane.ERROR_MESSAGE);
+										"Fail loading old environment Layouts!", JOptionPane.ERROR_MESSAGE);
 							}
 							
 							rdbtnNo.setEnabled(true);

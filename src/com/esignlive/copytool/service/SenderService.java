@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -148,7 +149,7 @@ public class SenderService {
 				sender.setCredential(apiKey);
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new RuntimeException("Error retrieving all senders' api key, please try again!");
+				throw new RuntimeException(e.getMessage() + " Error retrieving sender's api key with email: " + sender.getSenderVo().getEmail()+", please try again!");
 			}
 		}
 		System.out.println("old sender map: ");
@@ -397,6 +398,27 @@ public class SenderService {
 		} else {
 			throw new RuntimeException("Request did not succeed.");
 		}
+	}
+
+	public void handleRequest(Process2 frame) throws IOException, JSONException {
+		
+		if(UserData.copyMode == 1) {
+			List<SenderVo> oldEnvSenders = SenderService.getInstance().getOldEnvSenders();
+			SenderService.getInstance().setNewEnvOwner();
+			// after success
+			// add labels
+			frame.getScrollPane().setVisible(false);
+			frame.addLabels(oldEnvSenders);
+			frame.getScrollPane().setVisible(true);
+
+			frame.getInviteSenderBtn().setEnabled(true);
+			frame.getSelectAllSenderBtn().setEnabled(true);
+			frame.getSelectAllSenderBtn().setVisible(true);
+			frame.getSelectNoneSenderBtn().setEnabled(true);
+			frame.getSelectNoneSenderBtn().setVisible(true);
+			
+		}
+		
 	}
 
 }

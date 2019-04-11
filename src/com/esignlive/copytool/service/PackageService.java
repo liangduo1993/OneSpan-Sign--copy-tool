@@ -35,11 +35,14 @@ public class PackageService {
 
 	public void injectSenderPersonalInfo(JSONObject signerJSON, AccountVo accountVo, String key) throws JSONException {
 		if (accountVo.getSenderVo().getContent().has(key)) {
-			Object string = accountVo.getSenderVo().getContent().getString(key);
-			if (StringUtil.isEmpty((String) string)) {
-				string = JSONObject.NULL;
+			Object string = accountVo.getSenderVo().getContent().get(key);
+			System.out.println(key + " : " + (string != null ? string : ""));
+			if (string == null || string == JSONObject.NULL || StringUtil.isEmpty((String) string)) {
+				signerJSON.put(key, "");
+				System.out.println(key + " is null");
+			} else {
+				signerJSON.put(key, string);
 			}
-			signerJSON.put(key, string);
 		}
 	}
 
@@ -72,6 +75,7 @@ public class PackageService {
 					}
 				}
 				System.out.println("========");
+				System.out.println(accountVo.getSenderVo().getContent());
 				System.out.println(signerJSON.toString());
 				System.out.println("========");
 				break;
@@ -128,11 +132,26 @@ public class PackageService {
 
 	public Map.Entry<String, String> getOriginalDocumentName(String documentName) {
 		for (Map.Entry<String, String> entry : UserData.originalDocumentMap.entrySet()) {
-			String withoutExtension = entry.getKey().substring(0, entry.getKey().lastIndexOf("."));
-			if (documentName.trim().equals(withoutExtension.trim())) {
+			String withoutExtension = "";
+			try {
+				withoutExtension = entry.getKey().substring(0, entry.getKey().lastIndexOf("."));
+				if (documentName.trim().equals(withoutExtension.trim())) {
+					return entry;
+				}
+			} catch (Exception e) {
+				// to do
+			}
+
+		}
+
+		// if still can't find original document, try finding documentName with
+		// extension
+		for (Map.Entry<String, String> entry : UserData.originalDocumentMap.entrySet()) {
+			if (documentName.trim().equals(entry.getKey().trim())) {
 				return entry;
 			}
 		}
+
 		return null;
 	}
 

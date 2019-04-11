@@ -21,6 +21,7 @@ import javax.swing.JTextArea;
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.TemplateService;
+import com.esignlive.copytool.vo.FileVo;
 import com.esignlive.copytool.vo.TemplateVo;
 
 public class Process3 {
@@ -94,9 +95,9 @@ public class Process3 {
 
 							@Override
 							public void run() {
+								errorMsg = null;
 								Map<String, Boolean> copyTemplate = TemplateService.getInstance().copyTemplate(getInstance());
 
-								errorMsg = null;
 								btnNewButton.setEnabled(true);
 								btnNewButton.setText("Copy Templates");
 
@@ -287,7 +288,7 @@ public class Process3 {
 								e1.printStackTrace();
 								// show connection test fail dialog
 								JOptionPane.showMessageDialog(frame, e1.getMessage(),
-										"Fail load old environment Templates", JOptionPane.ERROR_MESSAGE);
+										"Fail loading old environment Templates!", JOptionPane.ERROR_MESSAGE);
 							}
 							
 							rdbtnNo.setEnabled(true);
@@ -339,7 +340,7 @@ public class Process3 {
 
 			}
 		});
-		btnNewButton_2.setBounds(272, 591, 101, 53);
+		btnNewButton_2.setBounds(272, 591, 151, 53);
 		btnNewButton_2.setVisible(false);
 		frame.add(btnNewButton_2);
 		rdbtnNo.doClick();

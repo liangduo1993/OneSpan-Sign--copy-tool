@@ -17,6 +17,7 @@ public class InstanceUtil {
 		endPointList.put("Production CA (apps.e-signlive.ca)", "https://apps.e-signlive.ca/api/");
 		endPointList.put("Production EU (apps.esignlive.eu)", "https://apps.esignlive.eu/api/");
 		endPointList.put("Production AU (apps.esignlive.com.au)", "https://apps.esignlive.com.au/api/");
+		endPointList.put("Preview (preview.esignlive.com)", "https://preview.esignlive.com/api/");
     }
 	
 	

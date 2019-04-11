@@ -68,7 +68,7 @@ public class LayoutService {
 					copySuccess = true;
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
-					errorMsg.append(e.getMessage()).append("\n");
+					errorMsg.append(oldLayoutID + " : " + e.getMessage()).append("\n");
 				}
 				view.setCopyStatus(oldLayoutID, copySuccess);
 				result.put(oldLayoutID, copySuccess);
@@ -98,7 +98,6 @@ public class LayoutService {
 			System.out.println("package id: " + packageId);
 			// copy document visibility
 			PackageService.getInstance().copyVisibility(oldLayoutID, packageId, accountVo);
-
 			// #step2. create layout from package
 			layoutId = PackageService.getInstance().createLayoutInNewEnv(accountVo, packageId,
 					prepareDocument.get(0).getId(), layoutById);
@@ -108,10 +107,9 @@ public class LayoutService {
 			throw e;
 		} finally {
 			// #step3. delete package
-			// if (packageId != null) {
-			// RestService.getInstance().doDelete(UserData.destinationApiUrl + "/packages/"
-			// + packageId);
-			// }
+			if (packageId != null) {
+				RestService.getInstance().doDelete(UserData.destinationApiUrl + "/packages/" + packageId);
+			}
 		}
 		return layoutId;
 	}
