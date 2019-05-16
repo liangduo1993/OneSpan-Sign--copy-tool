@@ -31,23 +31,29 @@ public class Process0 {
 
 		
 		String content = "<html>\r\n" + 
-				"Welcome to OneSpan Sign Copy Tool!<br/>\r\n" + 
+			
+				"<br/><h4>Before you start:</h4>\r\n" + 
+				"<br/>To be able to completely copy your accounts, please make sure your account level settings are the same. You can contact our support team at support@onespan.com to have these settled.\r\n" + 
 				"<br/>\r\n" + 
-				"Before you start:<br/>\r\n" + 
-				"To be able to completely copy your accounts, please make sure your account level settings are the same. You can contact our support team at sign.support@onespan.com to have these settled.<br/>\r\n" + 
+				"<br/><h4>Applicable scenarios:</h4>\r\n" + 
+				"<br/>If you want to copy the whole account:\r\n" + 
+				"<br/>1. copy whole account to another whole account\r\n" + 
+				"<br/>2. copy whole account to a sender\r\n" + 
+				"<br/>If you only want to copy one sender:\r\n" + 
+				"<br/>1. source and destination senders could be any of the account owner, manager or regular member.\r\n" + 
 				"<br/>\r\n" + 
-				"Support Functions:<br/>\r\n" + 
-				"1. Support both credentials: API KEY and Username/Password;<br/>\r\n" + 
-				"2. Allow copy account within same Instance, you can invite new emails and map them to senders in source account (if new sender wasn't specified, all templates/layouts will be created by new owner);<br/>\r\n" + 
-				"3. Easily check account's Sender Limitation by clicking on the owner email;<br/>\r\n" + 
-				"4. Enable uploading original documents instead of downloading documents with watermark if source environment was sandbox. (you need to collect all original documents in one folder with the same names as in templates);<br/>\r\n" + 
-				"5. Allow choosing partial templates/layouts to copy.<br/>\r\n" + 
+				"<br/><h4>Support Functions:</h4>\r\n" + 
+				"<br/>1. Support both credentials: API KEY and Username/Password;\r\n" + 
+				"<br/>2. Allow copy account within the same Instance, you can invite new emails and map them to senders in source account (if the new sender wasn't specified, all templates/layouts will be <br/>created by new owner);\r\n" + 
+				"<br/>3. Easily check the account's Sender Limitation by clicking on the owner email;\r\n" + 
+				"<br/>4. Enable uploading original documents instead of downloading documents with watermark if source environment was sandbox. (you need to collect all original documents in one folder with <br/>the same names as in templates);\r\n" + 
+				"<br/>5. Allow choosing partial templates/layouts to copy.\r\n" + 
 				"<br/>\r\n" + 
-				"Please make a post on Developer Community (https://developer.esignlive.com/) if the tool doesn't work properly or you have any suggestions on this tool!<br/>\r\n" + 
+				"<br/>Please make a post on Developer Community (https://developer.esignlive.com/) if the tool doesn't work properly or you have any suggestions on this tool!"+
 				"</html>";
 		JLabel lblNewLabel = new JLabel(content);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(49, 44, 706, 411);
+		lblNewLabel.setBounds(48, 30, 706, 509);
 		frame.add(lblNewLabel);
 
 		JButton btnNewButton = new JButton("Get Start");
@@ -59,7 +65,7 @@ public class Process0 {
 			}
 		}));
 
-		btnNewButton.setBounds(307, 524, 161, 48);
+		btnNewButton.setBounds(303, 578, 161, 48);
 		frame.add(btnNewButton);
 	}
 }

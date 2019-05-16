@@ -196,14 +196,18 @@ public class SenderService {
 
 					JSONArray jsonArray = sendersJSON.getJSONArray("results");
 
-					if (jsonArray.length() == 0) {
-						break; // break loop
-					}
+//					if (jsonArray.length() == 0) {
+//						break; // break loop
+//					}
 
 					boolean flag = true;
 					for (int index = 0; index < jsonArray.length(); index++) {
 						JSONObject senderJSON = jsonArray.getJSONObject(index);
-
+						
+						if( JSONObject.NULL.equals(senderJSON.get("account"))) {	//when mode 2 is chosen, but dest was a sender instead of owner
+							break;
+						}
+						
 						if (flag) {
 							JSONObject ownerAccount = senderJSON.getJSONObject("account");
 							UserData.destinationCredential.getSenderVo().setId(ownerAccount.getString("owner"));
@@ -405,18 +409,24 @@ public class SenderService {
 		if(UserData.copyMode == 1) {
 			List<SenderVo> oldEnvSenders = SenderService.getInstance().getOldEnvSenders();
 			SenderService.getInstance().setNewEnvOwner();
-			// after success
-			// add labels
 			frame.getScrollPane().setVisible(false);
 			frame.addLabels(oldEnvSenders);
 			frame.getScrollPane().setVisible(true);
+		}else if(UserData.copyMode == 2) {
+			if (UserData.oldSenderMap == null || UserData.oldSenderMap.size() == 0) {
+				List<SenderVo> oldEnvSenders = getOldEnvSenders();
+				System.out.println("=== " + oldEnvSenders);
 
-			frame.getInviteSenderBtn().setEnabled(true);
-			frame.getSelectAllSenderBtn().setEnabled(true);
-			frame.getSelectAllSenderBtn().setVisible(true);
-			frame.getSelectNoneSenderBtn().setEnabled(true);
-			frame.getSelectNoneSenderBtn().setVisible(true);
-			
+			}
+			if (StringUtil.isEmpty(UserData.destinationCredential.getSenderVo().getId())) {
+				setNewEnvOwner();
+			}
+		}else if(UserData.copyMode == 3) {
+			//to do
+			UserData.oldSenderMap.clear();
+			UserData.newSenderMap.clear();
+		
+		
 		}
 		
 	}

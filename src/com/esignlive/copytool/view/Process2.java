@@ -139,27 +139,42 @@ public class Process2 {
 		progressBarLabel.setBounds(708, 35, 46, 14);
 		frame.add(progressBarLabel);
 
-		JLabel lblDoYouWant = new JLabel("Please choose a Copy Mode:");
+		JLabel lblDoYouWant = new JLabel("As Account Owner:");
 		lblDoYouWant.setBounds(67, 51, 217, 14);
 		frame.add(lblDoYouWant);
 
 		mode1Radio = new JRadioButton("Copy all senders and match them in new environment.");
-		mode1Radio.setBounds(67, 76, 703, 23);
+		mode1Radio.setBounds(67, 72, 703, 23);
 		modeList.add(mode1Radio);
 
 		mode1Radio.addActionListener(
 				new ModeRadioActionListener(1, "(Loading sender list...)", "Fail to load sender list!") {
 
 					@Override
-					public void callback() {
+					public void beforeCall() {
+						scrollPane.setVisible(true);
+
+					}
+
+					@Override
+					public void afterCall() {
+						// after success
+						// add labels
+						scrollPane.setVisible(true);
+						scrollPane.repaint();
+						getInviteSenderBtn().setEnabled(true);
+						getSelectAllSenderBtn().setEnabled(true);
+						getSelectAllSenderBtn().setVisible(true);
+						getSelectNoneSenderBtn().setEnabled(true);
+						getSelectNoneSenderBtn().setVisible(true);
 						
 					}
 				});
 
 		frame.add(mode1Radio);
 
-		mode2Radio = new JRadioButton("Copy all senders and create all templates/layouts by new owner.");
-		mode2Radio.setBounds(67, 109, 703, 23);
+		mode2Radio = new JRadioButton("Create all templates/layouts by new owner.");
+		mode2Radio.setBounds(67, 105, 703, 23);
 		modeList.add(mode2Radio);
 //		mode2Radio.addActionListener(new ActionListener() {
 //
@@ -178,8 +193,13 @@ public class Process2 {
 				new ModeRadioActionListener(2, "(Loading sender list...)", "Fail to load sender list!") {
 
 					@Override
-					public void callback() {
-						
+					public void beforeCall() {
+						scrollPane.setVisible(false);
+					}
+
+					@Override
+					public void afterCall() {
+						nextProcessBtn.setEnabled(true);
 					}
 				});
 
@@ -188,7 +208,7 @@ public class Process2 {
 		frame.add(mode2Radio);
 
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(30, 179, 740, 425);
+		scrollPane.setBounds(30, 187, 740, 418);
 		scrollPane.setVisible(false);
 		frame.add(scrollPane);
 
@@ -233,7 +253,7 @@ public class Process2 {
 
 		// buttons
 		inviteSenderBtn = new JButton("Invite Senders");
-		inviteSenderBtn.setBounds(113, 615, 162, 38);
+		inviteSenderBtn.setBounds(112, 613, 162, 38);
 		inviteSenderBtn.setEnabled(false);
 
 		inviteSenderBtn.addActionListener(new ActionListener() {
@@ -296,7 +316,7 @@ public class Process2 {
 		frame.add(inviteSenderBtn);
 
 		nextProcessBtn = new JButton("Prepare Accounts");
-		nextProcessBtn.setBounds(529, 615, 162, 38);
+		nextProcessBtn.setBounds(528, 613, 162, 38);
 		nextProcessBtn.setEnabled(false);
 		nextProcessBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -317,7 +337,7 @@ public class Process2 {
 					@Override
 					public void run() {
 						try {
-							SenderService.getInstance().senderNextProcessCallback();
+//							SenderService.getInstance().senderNextProcessCallback();
 							App.setMainFrame(new Process3().getFrame());
 						} catch (Exception ex) {
 							// to do
@@ -345,21 +365,31 @@ public class Process2 {
 		frame.add(nextProcessBtn);
 
 		errorMsgBtn = new JButton("<html>\r\nView</br>\r\nError</br>\r\nReport</br>\r\n</html>");
-		errorMsgBtn.setBounds(288, 616, 162, 37);
+		errorMsgBtn.setBounds(284, 613, 162, 37);
 		frame.add(errorMsgBtn);
 
 		mode3Radio = new JRadioButton("Just copy current sender.");
-		mode3Radio.setBounds(67, 146, 703, 23);
+		mode3Radio.setBounds(67, 157, 703, 23);
 		mode3Radio.addActionListener(
 				new ModeRadioActionListener(3, "(Checking sender status...)", "Fail to load sender!") {
 
 					@Override
-					public void callback() {
+					public void beforeCall() {
+						scrollPane.setVisible(false);
+					}
+
+					@Override
+					public void afterCall() {
+						nextProcessBtn.setEnabled(true);
 						
 					}
 				});
 		modeList.add(mode3Radio);
 		frame.add(mode3Radio);
+		
+		JLabel lblForRegularMember = new JLabel("As Regular Member:");
+		lblForRegularMember.setBounds(67, 136, 217, 14);
+		frame.add(lblForRegularMember);
 		errorMsgBtn.setVisible(false);
 
 		errorMsgBtn.addActionListener(new ActionListener() {
@@ -538,12 +568,10 @@ public class Process2 {
 					try {
 						errorMsg = null;
 
+						beforeCall();
 						SenderService.getInstance().handleRequest(getInstance());
-						callback();
+						afterCall();
 						
-						
-						scrollPane.setVisible(true);
-						scrollPane.repaint();
 					} catch (Exception e1) {
 						e1.printStackTrace();
 						JOptionPane.showMessageDialog(frame, e1.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
@@ -556,7 +584,8 @@ public class Process2 {
 			}).start();
 		}
 
-		public abstract void callback();
+		public abstract void beforeCall();
+		public abstract void afterCall();
 
 	}
 }

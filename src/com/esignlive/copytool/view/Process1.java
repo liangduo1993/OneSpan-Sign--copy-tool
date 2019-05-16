@@ -147,7 +147,7 @@ public class Process1 {
 				App.setMainFrame(new Process2().getFrame());
 			}
 		});
-		btnNextProcess.setBounds(591, 578, 152, 38);
+		btnNextProcess.setBounds(511, 578, 152, 38);
 		frame.add(btnNextProcess);
 
 		btnNewButton = new JButton("Test Connection");
@@ -163,9 +163,9 @@ public class Process1 {
 					public void run() {
 						try {
 							System.out.println(textField.getText());
-							System.out.println(comboBox.getSelectedItem());
-							System.out.println(textField_1.getText());
 							System.out.println((String) comboBox.getSelectedItem());
+							System.out.println(textField_1.getText());
+							System.out.println((String) comboBox_1.getSelectedItem());
 							UserData.sourceApiUrl = InstanceUtil.getUrlByKey((String) comboBox.getSelectedItem());
 							UserData.destinationApiUrl = InstanceUtil
 									.getUrlByKey((String) comboBox_1.getSelectedItem());
@@ -214,7 +214,7 @@ public class Process1 {
 			}
 
 		});
-		btnNewButton.setBounds(599, 97, 144, 38);
+		btnNewButton.setBounds(163, 578, 144, 38);
 		frame.add(btnNewButton);
 
 		rdbtnWithApiKey = new JRadioButton("With API KEY");
@@ -298,10 +298,6 @@ public class Process1 {
 		});
 		destCrenButton.setBounds(299, 341, 200, 50);
 		frame.add(destCrenButton);
-		
-		JButton button = new JButton("Test Connection");
-		button.setBounds(599, 358, 144, 38);
-		frame.add(button);
 		
 	
 

@@ -34,14 +34,14 @@ public class EndpointService {
 		try {
 			System.out.println(sourceAccountVo);
 			// according to apikey/credential, inject AccountVo
-			injectAccountVo(UserData.sourceApiUrl.subSequence(0, UserData.sourceApiUrl.lastIndexOf("/api")) + "/a/auth",
+			setCredential(UserData.sourceApiUrl.subSequence(0, UserData.sourceApiUrl.lastIndexOf("/api")) + "/a/auth",
 					sourceAccountVo);
-			injectAccountVo(UserData.destinationApiUrl.subSequence(0, UserData.sourceApiUrl.lastIndexOf("/api")) + "/a/auth",
+			setCredential(UserData.destinationApiUrl.subSequence(0, UserData.destinationApiUrl.lastIndexOf("/api")) + "/a/auth",
 					destinationAccountVo);
 
 			// try getting sys info
-			testConnectionEnvironment(UserData.sourceApiUrl + "/sysinfo", sourceAccountVo);
-			testConnectionEnvironment(UserData.destinationApiUrl + "/sysinfo", destinationAccountVo);
+			testConnectionEnvironment(UserData.sourceApiUrl + "/session", sourceAccountVo);
+			testConnectionEnvironment(UserData.destinationApiUrl + "/session", destinationAccountVo);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -58,15 +58,34 @@ public class EndpointService {
 		System.out.println(sourceConn.getRequestProperties());
 
 		int sourceResponseCode = ((HttpURLConnection) sourceConn).getResponseCode();
+		Reader ir = sourceResponseCode == 200 ? new InputStreamReader(sourceConn.getInputStream())
+				: new InputStreamReader(sourceConn.getErrorStream());
+		BufferedReader in = new BufferedReader(ir);
+		String inputLine;
+		StringBuffer response = new StringBuffer();
 
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+
+		in.close();
+		sourceConn.disconnect();
 		if (sourceResponseCode == 200) {
-			sourceConn.disconnect();
+			JSONObject json = new JSONObject(response.toString());
+			JSONObject user = (JSONObject)json.get("user");
+			String email = user.getString("email");
+			
+			accountVo.getSenderVo().setEmail(email);
+		
+		
+		
 		} else {
 			throw new RuntimeException("Credential " + accountVo.getCredential() + " went wrong!");
 		}
 	}
 
-	private void injectAccountVo(String url, AccountVo accountVo) throws IOException, JSONException {
+	private void setCredential(String url, AccountVo accountVo) throws IOException, JSONException {
+		System.out.println(url);
 		if (accountVo.getCredentialType() == CredentialType.API_KEY) {
 			accountVo.setCredential(accountVo.getApiKey());
 		} else if (accountVo.getCredentialType() == CredentialType.CREDENTIAL) {
@@ -108,6 +127,14 @@ public class EndpointService {
 				JSONObject json = new JSONObject(response.toString());
 				String sessionToken = json.getString("sessionToken");
 				accountVo.setCredential(sessionToken);
+				
+//				
+//				SenderVo senderVo = new SenderVo();
+//				senderVo.setEmail(accountVo.getUsername());
+//				accountVo.setSenderVo(senderVo);
+//				
+//				accountVo.getSenderVo().setEmail(accountVo.getUsername());
+				
 			} else {
 				throw new RuntimeException(
 						"Credentials for email " + accountVo.getUsername() + " is not correct, please check again! Reason: " + response.toString());
