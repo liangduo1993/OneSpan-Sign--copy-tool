@@ -31,4 +31,6 @@ public class UserData {
 
 	public static Map<String, String> originalDocumentMap = new LinkedHashMap<>();// <document name, document path>
 
+	public static final int pageSize = 100;
+	
 }

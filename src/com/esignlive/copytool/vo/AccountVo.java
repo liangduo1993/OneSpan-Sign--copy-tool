@@ -23,6 +23,8 @@ public class AccountVo {
 	private SenderStatus senderStatus;
 	private SenderType senderType;
 
+	
+	
 	public CredentialType getCredentialType() {
 		return credentialType;
 	}

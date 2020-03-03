@@ -6,16 +6,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.utils.HttpURLConnectionUtil;
+import com.esignlive.copytool.utils.SSLFix;
 import com.esignlive.copytool.vo.AccountVo;
-import com.esignlive.copytool.vo.SenderVo;
 import com.esignlive.copytool.vo.AccountVo.CredentialType;
 
 public class EndpointService {
@@ -48,9 +48,11 @@ public class EndpointService {
 	}
 
 	private void testConnectionEnvironment(String url, AccountVo accountVo) throws Exception {
+		SSLFix.execute();
+
 		System.out.println(url);
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
 		sourceConn.setRequestProperty("Content-Type", "application/json");
 		HttpURLConnectionUtil.addCredential(sourceConn, accountVo);
 		sourceConn.setRequestProperty("Accept", "application/json");
@@ -71,7 +73,7 @@ public class EndpointService {
 		in.close();
 		sourceConn.disconnect();
 		if (sourceResponseCode == 200) {
-			JSONObject json = new JSONObject(response.toString());
+			JSONObject json = JSON.parseObject(response.toString());
 			JSONObject user = (JSONObject)json.get("user");
 			String email = user.getString("email");
 			
@@ -85,6 +87,8 @@ public class EndpointService {
 	}
 
 	private void setCredential(String url, AccountVo accountVo) throws IOException, JSONException {
+		SSLFix.execute();
+
 		System.out.println(url);
 		if (accountVo.getCredentialType() == CredentialType.API_KEY) {
 			accountVo.setCredential(accountVo.getApiKey());
@@ -92,7 +96,7 @@ public class EndpointService {
 			// generate session token
 			// to do
 			URL sourceClient = new URL(url);
-			HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
+			HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
 			sourceConn.setRequestProperty("Content-Type", "application/json");
 			sourceConn.setRequestProperty("Accept", "application/json");
 			sourceConn.setRequestMethod("POST");
@@ -124,7 +128,7 @@ public class EndpointService {
 			sourceConn.disconnect();
 
 			if (sourceResponseCode == 200) {
-				JSONObject json = new JSONObject(response.toString());
+				JSONObject json = JSON.parseObject(response.toString());
 				String sessionToken = json.getString("sessionToken");
 				accountVo.setCredential(sessionToken);
 				

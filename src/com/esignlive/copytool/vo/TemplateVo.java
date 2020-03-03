@@ -1,6 +1,6 @@
 package com.esignlive.copytool.vo;
 
-import org.json.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 
 public class TemplateVo {
 	private Boolean isCopy;

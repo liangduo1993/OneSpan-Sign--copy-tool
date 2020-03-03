@@ -5,10 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.view.Process3;
 import com.esignlive.copytool.vo.AccountVo;
@@ -49,7 +48,7 @@ public class TemplateService {
 
 				boolean copySuccess = false;
 				try {
-					String copyTemplateFromOldAccount = copyTemplateFromOldAccount(oldTemplateID, newSender);
+					String copyTemplateFromOldAccount = copyTemplateFromOldAccount(oldTemplateID, newSender, view);
 
 					copySuccess = true;
 				} catch (Exception e) {
@@ -64,17 +63,17 @@ public class TemplateService {
 		return result;
 	}
 
-	private String copyTemplateFromOldAccount(String oldTemplateID, AccountVo accountVo) throws Exception {
+	private String copyTemplateFromOldAccount(String oldTemplateID, AccountVo accountVo, Process3 view) throws Exception {
 		String newPackageId;
 		try {
 			// prepare new template metadata
 			JSONObject templateById = PackageService.getInstance().preparePackageMetadata(oldTemplateID, accountVo,
 					"TEMPLATE");
-
+			//view.setErrorMsg("received: "+templateById.toJSONString());
 			// download and document content and remove default consent
 			List<DocumentVo> prepareDocument = PackageService.getInstance().prepareDocument(templateById,
 					oldTemplateID);
-
+			
 			// create new template in destination env
 			newPackageId = PackageService.getInstance().createPackageInNewEnv(accountVo, prepareDocument, templateById);
 			System.out.println("new package id: " + newPackageId);
@@ -125,17 +124,17 @@ public class TemplateService {
 		JSONArray resultPage1;
 		int pageNum = 1;
 		do {
-			String url = UserData.sourceApiUrl + "/packages?type=template&from=" + pageNum + "&to=" + (pageNum + 49);
+			String url = UserData.sourceApiUrl + "/packages?type=template&from=" + pageNum + "&to=" + (pageNum + UserData.pageSize - 1);
 			try {
 				JSONObject sendersJSON = RestService.getInstance().doGet(url, credential);
 
 				resultPage1 = sendersJSON.getJSONArray("results");
 
-				if (resultPage1.length() == 0) {
+				if (resultPage1.size() == 0) {
 					break; // break loop
 				}
 
-				for (int index = 0; index < resultPage1.length(); index++) {
+				for (int index = 0; index < resultPage1.size(); index++) {
 					JSONObject templateJSON = resultPage1.getJSONObject(index);
 
 					if (templateJSON.getJSONObject("sender").getString("email")
@@ -156,8 +155,8 @@ public class TemplateService {
 				throw e;
 			}
 
-			pageNum += 50;
-		} while (resultPage1.length() == 50);
+			pageNum += UserData.pageSize;
+		} while (resultPage1.size() == UserData.pageSize);
 	}
 
 }

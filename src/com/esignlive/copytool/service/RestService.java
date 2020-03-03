@@ -10,17 +10,19 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.utils.HttpURLConnectionUtil;
 import com.esignlive.copytool.utils.MimeTypeUtil;
+import com.esignlive.copytool.utils.SSLFix;
 import com.esignlive.copytool.vo.AccountVo;
 import com.esignlive.copytool.vo.DocumentVo;
 
@@ -35,8 +37,10 @@ public class RestService {
 	}
 
 	public void doDelete(String url) throws IOException {
+		SSLFix.execute();
+
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
 		sourceConn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(sourceConn, UserData.destinationCredential);
 		sourceConn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
@@ -64,10 +68,12 @@ public class RestService {
 	}
 
 	public byte[] doGetByteArray(String url, AccountVo accountVo) throws Exception {
+		SSLFix.execute();
+
 		URL client = new URL(url);
 
 		byte[] byteArray;
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
+		HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
 		conn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
 		conn.setRequestProperty("Accept", "application/pdf; esl-api-version=11.21");
@@ -91,8 +97,13 @@ public class RestService {
 	}
 
 	public JSONObject doGet(String url, AccountVo accountVo) throws IOException, JSONException {
+		SSLFix.execute();
+
 		URL client = new URL(url);
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
+		HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
+		conn.setRequestProperty("Accept-Encoding","UTF-8");
+		conn.setRequestProperty("Accept-Charset","UTF-8");
+		
 		conn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
 		conn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
@@ -112,8 +123,8 @@ public class RestService {
 
 			in.close();
 			conn.disconnect();
-
-			return new JSONObject(response.toString());
+			
+			return (JSONObject) JSON.parseObject(new String(response.toString().getBytes(),"UTF-8"));
 		} else if (sourceResponseCode == 204) {	//no content
 			return null;
 		}else if (sourceResponseCode == 403) {	//no access (package has been deleted)
@@ -155,6 +166,8 @@ public class RestService {
 
 	public JSONObject doPostMultipart(String url, AccountVo accountVo, JSONObject payloadJSON,
 			List<DocumentVo> prepareDocument) throws Exception {
+		SSLFix.execute();
+
 		System.out.println(payloadJSON.toString());
 
 		String charset = "UTF-8";
@@ -163,7 +176,7 @@ public class RestService {
 
 		HttpsURLConnection connection = null;
 		URL client = new URL(url);
-		connection = (HttpsURLConnection) client.openConnection();
+		connection = (HttpsURLConnection) client.openConnection(Proxy.NO_PROXY);
 		connection.setDoOutput(true);
 		connection.setDoInput(true);
 		connection.setRequestMethod("POST");
@@ -225,7 +238,7 @@ public class RestService {
 			}
 			in.close();
 
-			return new JSONObject(response.toString());
+			return (JSONObject) JSON.parse(response.toString().getBytes("UTF-8"));
 		} else {
 			// get and write out response
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
@@ -237,14 +250,16 @@ public class RestService {
 			}
 			in.close();
 			// print result
-			throw new RuntimeException(response.toString());
+			throw new RuntimeException(url+" : "+response.toString());
 		}
 	}
 
 	public JSONObject doPost(String url, AccountVo accountVo, JSONObject payloadJSON)
 			throws IOException, JSONException {
+		SSLFix.execute();
+
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
 		sourceConn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(sourceConn, accountVo);
 		sourceConn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
@@ -275,7 +290,7 @@ public class RestService {
 
 		if (sourceResponseCode == 200) {
 			try {
-				return new JSONObject(response.toString());
+				return (JSONObject) JSON.parse(response.toString().getBytes("UTF-8"));
 			} catch (Exception e) {
 				return null;
 			}

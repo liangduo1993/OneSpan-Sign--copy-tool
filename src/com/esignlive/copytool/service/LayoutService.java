@@ -1,34 +1,19 @@
 package com.esignlive.copytool.service;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.esignlive.copytool.data.UserData;
-import com.esignlive.copytool.utils.HttpURLConnectionUtil;
 import com.esignlive.copytool.view.Process4;
 import com.esignlive.copytool.vo.AccountVo;
+import com.esignlive.copytool.vo.AccountVo.SenderStatus;
 import com.esignlive.copytool.vo.DocumentVo;
 import com.esignlive.copytool.vo.LayoutVo;
-import com.esignlive.copytool.vo.SenderVo;
-import com.esignlive.copytool.vo.AccountVo.SenderStatus;
 
 public class LayoutService {
 	private static LayoutService endpointService;
@@ -87,7 +72,6 @@ public class LayoutService {
 			// prepare new template metadata
 			JSONObject layoutById = PackageService.getInstance().preparePackageMetadata(oldLayoutID, accountVo,
 					"PACKAGE");
-
 			// download and document content and remove default consent
 			List<DocumentVo> prepareDocument = PackageService.getInstance().prepareDocument(layoutById, oldLayoutID);
 
@@ -143,17 +127,17 @@ public class LayoutService {
 		JSONArray resultPage1;
 		int pageNum = 1;
 		do {
-			String url = UserData.sourceApiUrl + "layouts?from=" + pageNum + "&to=" + (pageNum + 49);
+			String url = UserData.sourceApiUrl + "layouts?from=" + pageNum + "&to=" + (pageNum + UserData.pageSize - 1);
 			try {
 				JSONObject sendersJSON = RestService.getInstance().doGet(url, credential);
 
 				resultPage1 = sendersJSON.getJSONArray("results");
 
-				if (resultPage1.length() == 0) {
+				if (resultPage1.size() == 0) {
 					break; // break loop
 				}
 
-				for (int index = 0; index < resultPage1.length(); index++) {
+				for (int index = 0; index < resultPage1.size(); index++) {
 					JSONObject layoutJSON = resultPage1.getJSONObject(index);
 					if (layoutJSON.getJSONObject("sender").getString("email")
 							.equals(credential.getSenderVo().getEmail())) {
@@ -170,8 +154,8 @@ public class LayoutService {
 			} catch (Exception e) {
 				throw e;
 			}
-			pageNum += 50;
-		} while (resultPage1.length() == 50);
+			pageNum += UserData.pageSize;
+		} while (resultPage1.size() == UserData.pageSize);
 	}
 
 }

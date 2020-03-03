@@ -7,13 +7,13 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.utils.StringUtil;
 import com.esignlive.copytool.vo.AccountVo;
@@ -30,14 +30,15 @@ public class PackageService {
 	}
 
 	public JSONObject getPackageById(String packageId, AccountVo accountVo) throws IOException, JSONException {
+		System.out.println("API URL: " + UserData.sourceApiUrl + "/packages/" + packageId);
 		return RestService.getInstance().doGet(UserData.sourceApiUrl + "/packages/" + packageId, accountVo);
 	}
 
 	public void injectSenderPersonalInfo(JSONObject signerJSON, AccountVo accountVo, String key) throws JSONException {
-		if (accountVo.getSenderVo().getContent().has(key)) {
+		if (accountVo.getSenderVo().getContent().containsKey(key)) {
 			Object string = accountVo.getSenderVo().getContent().get(key);
 			System.out.println(key + " : " + (string != null ? string : ""));
-			if (string == null || string == JSONObject.NULL || StringUtil.isEmpty((String) string)) {
+			if (string == null || StringUtil.isEmpty((String) string)) {
 				signerJSON.put(key, "");
 				System.out.println(key + " is null");
 			} else {
@@ -50,14 +51,17 @@ public class PackageService {
 			throws Exception, JSONException {
 		// get template metadata
 		JSONObject newPackage = getPackageById(packageId, UserData.sourceCredential);
-		newPackage.put("sender", new JSONObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
+		
+		System.out.println("template metadata: " + newPackage.toString());
+		
+		newPackage.put("sender", JSON.parseObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
 		newPackage.put("status", "DRAFT");
-		newPackage.put("due", JSONObject.NULL);
-
+		newPackage.put("due", null);
+		newPackage.remove("id");
 		newPackage.put("type", packageType);
 		// replace firstname,lastname,company,title for sender
 		JSONArray roleArray = newPackage.getJSONArray("roles");
-		for (int i = 0; i < roleArray.length(); i++) {
+		for (int i = 0; i < roleArray.size(); i++) {
 			JSONObject roleJSON = roleArray.getJSONObject(i);
 
 			String signerType = roleJSON.getString("type");
@@ -81,6 +85,14 @@ public class PackageService {
 				break;
 			}
 		}
+		
+		//remove external attribute for documents
+		JSONArray documentArray = newPackage.getJSONArray("documents");
+		for (int i = 0; i < documentArray.size(); i++) {
+			JSONObject documentJSON = documentArray.getJSONObject(i);
+			documentJSON.put("external", null);
+		}
+			
 		return newPackage;
 	}
 
@@ -89,14 +101,17 @@ public class PackageService {
 
 		Map<String, String> documentIds = new LinkedHashMap<>();// <id,name>
 		JSONArray documentArray = packageJSON.getJSONArray("documents");
+		String consent = packageJSON.getString("consent");
+		boolean checkConsent = !StringUtil.isEmpty(consent) && consent.equals("default-consent");
+		
 		int defaultIndex = -1;
-		for (int i = 0; i < documentArray.length(); i++) {
+		for (int i = 0; i < documentArray.size(); i++) {
 			JSONObject documentJSON = documentArray.getJSONObject(i);
 			String docId = documentJSON.getString("id");
 			String docName = documentJSON.getString("name");
 			if (!docId.equals("default-consent")) {
 				documentIds.put(docId, docName);
-			} else {
+			} else if(checkConsent){
 				defaultIndex = i;
 			}
 		}
@@ -171,7 +186,7 @@ public class PackageService {
 				+ "\",\r\n" + "  \"visibility\": \"" + layoutJSON.getString("visibility") + "\",\r\n" + "  \"id\": \""
 				+ packageId + "\",\r\n" + "  \"documents\": [\r\n" + "    {\r\n" + "      \"id\": \"" + documentId
 				+ "\"\r\n" + "    }\r\n" + "  ]\r\n" + "}";
-		JSONObject payloadJSON = new JSONObject(payload);
+		JSONObject payloadJSON = JSON.parseObject(payload);
 		System.out.println(payload);
 		JSONObject doPost = RestService.getInstance().doPost(requestURL, accountVo, payloadJSON);
 		return doPost.getString("id");

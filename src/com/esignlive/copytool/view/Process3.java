@@ -57,7 +57,7 @@ public class Process3 {
 	}
 
 	public void setErrorMsg(String errorMsg) {
-		this.errorMsg = errorMsg;
+		this.errorMsg += "\n"+errorMsg;
 	}
 
 	/**

@@ -6,29 +6,28 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.utils.HttpURLConnectionUtil;
+import com.esignlive.copytool.utils.SSLFix;
 import com.esignlive.copytool.utils.StringUtil;
 import com.esignlive.copytool.view.Process2;
 import com.esignlive.copytool.vo.AccountVo;
-import com.esignlive.copytool.vo.SenderVo;
 import com.esignlive.copytool.vo.AccountVo.CredentialType;
 import com.esignlive.copytool.vo.AccountVo.SenderStatus;
+import com.esignlive.copytool.vo.SenderVo;
 
 public class SenderService {
 	private static SenderService endpointService;
@@ -41,17 +40,17 @@ public class SenderService {
 	}
 
 	public List<SenderVo> getOldEnvSenders() throws IOException, JSONException {
+		SSLFix.execute();
+
 		List<SenderVo> senderVos = new ArrayList<>();
 		int pageIndex = 1;
-		try {
-			while (true) {
-				if (pageIndex > 10) {
-					break;
-				}
-
-				String url = UserData.sourceApiUrl + "/account/senders?from=" + pageIndex + "&to=" + (pageIndex + 49);
+		int totalCount = 0;
+		int curCount = 0;
+		do {
+			try {
+				String url = UserData.sourceApiUrl + "/account/senders?from=" + pageIndex + "&to=" + (pageIndex + UserData.pageSize - 1);
 				URL client = new URL(url);
-				HttpURLConnection conn = (HttpURLConnection) client.openConnection();
+				HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
 				conn.setRequestProperty("Content-Type", "application/json");
 				HttpURLConnectionUtil.addCredential(conn, UserData.sourceCredential);
 				conn.setRequestProperty("Accept", "application/json");
@@ -71,16 +70,19 @@ public class SenderService {
 					in.close();
 					conn.disconnect();
 
-					JSONObject sendersJSON = new JSONObject(response.toString());
+					JSONObject sendersJSON = JSON.parseObject(response.toString());
 
 					JSONArray jsonArray = sendersJSON.getJSONArray("results");
+					Integer count = sendersJSON.getInteger("count");
+					totalCount = totalCount == 0 ? count : totalCount;
+					curCount += jsonArray.size();
 
-					if (jsonArray.length() == 0) {
+					if (jsonArray.size() == 0) {
 						break; // break loop
 					}
 
 					boolean flag = true;
-					for (int index = 0; index < jsonArray.length(); index++) {
+					for (int index = 0; index < jsonArray.size(); index++) {
 						JSONObject senderJSON = jsonArray.getJSONObject(index);
 
 						SenderVo senderVo = new SenderVo();
@@ -134,13 +136,12 @@ public class SenderService {
 				} else {
 					throw new RuntimeException("Request for sender list fail!");
 				}
-				pageIndex += 50;
+				pageIndex += UserData.pageSize;
+			} catch (Exception e) {
+				// throw e;
 			}
-		} catch (
 
-		Exception e) {
-			throw e;
-		}
+		} while (curCount < totalCount);
 
 		for (AccountVo sender : UserData.oldSenderMap.values()) {
 			String apiKey;
@@ -149,7 +150,8 @@ public class SenderService {
 				sender.setCredential(apiKey);
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new RuntimeException(e.getMessage() + " Error retrieving sender's api key with email: " + sender.getSenderVo().getEmail()+", please try again!");
+				throw new RuntimeException(e.getMessage() + " Error retrieving sender's api key with email: "
+						+ sender.getSenderVo().getEmail() + ", please try again!");
 			}
 		}
 		System.out.println("old sender map: ");
@@ -163,16 +165,18 @@ public class SenderService {
 	}
 
 	public void setNewEnvOwner() throws IOException, JSONException {
+		SSLFix.execute();
+
 		int pageIndex = 1;
-		try {
-			while (true) {
-				if (pageIndex > 10) {
-					break;
-				}
+		int curCount = 0;
+		int totalCount = 0;
+
+		do {
+			try {
 				String url = UserData.destinationApiUrl + "/account/senders?from=" + pageIndex + "&to="
-						+ (pageIndex + 49);
+						+ (pageIndex + UserData.pageSize - 1);
 				URL client = new URL(url);
-				HttpURLConnection conn = (HttpURLConnection) client.openConnection();
+				HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
 				conn.setRequestProperty("Content-Type", "application/json");
 				HttpURLConnectionUtil.addCredential(conn, UserData.destinationCredential);
 				conn.setRequestProperty("Accept", "application/json");
@@ -192,22 +196,29 @@ public class SenderService {
 					in.close();
 					conn.disconnect();
 
-					JSONObject sendersJSON = new JSONObject(response.toString());
+					JSONObject sendersJSON = JSON.parseObject(response.toString());
 
 					JSONArray jsonArray = sendersJSON.getJSONArray("results");
 
-//					if (jsonArray.length() == 0) {
-//						break; // break loop
-//					}
+					Integer count = sendersJSON.getInteger("count");
+					totalCount = totalCount == 0 ? count : totalCount;
+					curCount += jsonArray.size();
+					
+					if (jsonArray.size() == 0) {
+						break; // break loop
+					}
 
 					boolean flag = true;
-					for (int index = 0; index < jsonArray.length(); index++) {
+					for (int index = 0; index < jsonArray.size(); index++) {
 						JSONObject senderJSON = jsonArray.getJSONObject(index);
-						
-						if( JSONObject.NULL.equals(senderJSON.get("account"))) {	//when mode 2 is chosen, but dest was a sender instead of owner
+
+						if (!senderJSON.containsKey("account")
+								|| !JSON.isValidObject(senderJSON.getString("account"))) { // when mode 2 is chosen, but
+																							// dest was a sender instead
+																							// of owner
 							break;
 						}
-						
+
 						if (flag) {
 							JSONObject ownerAccount = senderJSON.getJSONObject("account");
 							UserData.destinationCredential.getSenderVo().setId(ownerAccount.getString("owner"));
@@ -235,11 +246,13 @@ public class SenderService {
 				} else {
 					throw new RuntimeException("Request for sender list fail!");
 				}
-				pageIndex += 50;
+				pageIndex += UserData.pageSize;
+			} catch (Exception e) {
+				throw e;
 			}
-		} catch (Exception e) {
-			throw e;
-		}
+
+		} while (curCount < totalCount);
+
 	}
 
 	public Map<JButton, Boolean> inviteSenders(Map<JButton, String> senderEmails, Process2 view) {
@@ -301,8 +314,10 @@ public class SenderService {
 
 	// to check
 	private SenderVo inviteSender(String url, JSONObject sender, SenderVo senderVo) throws Exception {
+		SSLFix.execute();
+
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
 		sourceConn.setRequestProperty("Content-Type", "application/json");
 		HttpURLConnectionUtil.addCredential(sourceConn, UserData.destinationCredential);
 		sourceConn.setRequestProperty("Accept", "application/json");
@@ -334,7 +349,7 @@ public class SenderService {
 		sourceConn.disconnect();
 
 		if (sourceResponseCode == 200) {
-			JSONObject json = new JSONObject(response.toString());
+			JSONObject json = JSON.parseObject(response.toString());
 			System.out.println(json);
 			SenderVo invitedSender = new SenderVo();
 			invitedSender.setContent(json);
@@ -366,6 +381,8 @@ public class SenderService {
 	}
 
 	public String getApiKey(boolean isSource, String senderId) throws IOException, JSONException {
+		SSLFix.execute();
+
 		String apiUrl = null;
 		AccountVo accountVo = null;
 		if (isSource) {
@@ -377,7 +394,7 @@ public class SenderService {
 		}
 
 		URL client = new URL(apiUrl + "/account/senders/" + senderId + "/apiKey");
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection();
+		HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
 		conn.setRequestProperty("Content-Type", "application/json");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
 		conn.setRequestProperty("Accept", "application/json");
@@ -396,7 +413,7 @@ public class SenderService {
 			in.close();
 			conn.disconnect();
 
-			JSONObject json = new JSONObject(response.toString());
+			JSONObject json = JSON.parseObject(response.toString());
 			System.out.println(json.getString("apiKey"));
 			return json.getString("apiKey");
 		} else {
@@ -405,14 +422,14 @@ public class SenderService {
 	}
 
 	public void handleRequest(Process2 frame) throws IOException, JSONException {
-		
-		if(UserData.copyMode == 1) {
+
+		if (UserData.copyMode == 1) {
 			List<SenderVo> oldEnvSenders = SenderService.getInstance().getOldEnvSenders();
 			SenderService.getInstance().setNewEnvOwner();
 			frame.getScrollPane().setVisible(false);
 			frame.addLabels(oldEnvSenders);
 			frame.getScrollPane().setVisible(true);
-		}else if(UserData.copyMode == 2) {
+		} else if (UserData.copyMode == 2) {
 			if (UserData.oldSenderMap == null || UserData.oldSenderMap.size() == 0) {
 				List<SenderVo> oldEnvSenders = getOldEnvSenders();
 				System.out.println("=== " + oldEnvSenders);
@@ -421,14 +438,13 @@ public class SenderService {
 			if (StringUtil.isEmpty(UserData.destinationCredential.getSenderVo().getId())) {
 				setNewEnvOwner();
 			}
-		}else if(UserData.copyMode == 3) {
-			//to do
+		} else if (UserData.copyMode == 3) {
+			// to do
 			UserData.oldSenderMap.clear();
 			UserData.newSenderMap.clear();
-		
-		
+
 		}
-		
+
 	}
 
 }

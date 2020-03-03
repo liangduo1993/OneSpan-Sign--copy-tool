@@ -18,6 +18,10 @@ public class InstanceUtil {
 		endPointList.put("Production EU (apps.esignlive.eu)", "https://apps.esignlive.eu/api/");
 		endPointList.put("Production AU (apps.esignlive.com.au)", "https://apps.esignlive.com.au/api/");
 		endPointList.put("Preview (preview.esignlive.com)", "https://preview.esignlive.com/api/");
+		endPointList.put("FedRAMP Sandbox (sandbox-gov.esignlive.com)", "https://signer-sandbox-gov.esignlive.com/api");
+		endPointList.put("FedRAMP Production (gov.esignlive.com)", "https://signer-gov.esignlive.com/api");
+		
+		
     }
 	
 	

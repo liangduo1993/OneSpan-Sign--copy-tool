@@ -60,19 +60,19 @@ public class Process1 {
 		frame.setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Source API KEY:");
-		lblNewLabel.setBounds(50, 150, 120, 38);
+		lblNewLabel.setBounds(50, 150, 144, 38);
 		frame.add(lblNewLabel);
 
 		JLabel lblSourceEnvironment = new JLabel("Source Environment:");
-		lblSourceEnvironment.setBounds(50, 231, 120, 38);
+		lblSourceEnvironment.setBounds(50, 231, 144, 38);
 		frame.add(lblSourceEnvironment);
 
 		JLabel lblDestinationApiKey = new JLabel("Destination API KEY:");
-		lblDestinationApiKey.setBounds(50, 411, 120, 38);
+		lblDestinationApiKey.setBounds(50, 411, 144, 38);
 		frame.add(lblDestinationApiKey);
 
 		JLabel lblDestinationEnvironment = new JLabel("Destination Environment:");
-		lblDestinationEnvironment.setBounds(50, 492, 144, 38);
+		lblDestinationEnvironment.setBounds(50, 492, 153, 38);
 		frame.add(lblDestinationEnvironment);
 
 		textField = new JTextField();
@@ -81,7 +81,7 @@ public class Process1 {
 		textField.setColumns(10);
 
 		JLabel lblSourceUsername = new JLabel("Source Username");
-		lblSourceUsername.setBounds(50, 131, 120, 38);
+		lblSourceUsername.setBounds(50, 131, 144, 38);
 		frame.add(lblSourceUsername);
 
 		textField_2 = new JTextField();
@@ -90,7 +90,7 @@ public class Process1 {
 		frame.add(textField_2);
 
 		JLabel lblSourcePassowrd = new JLabel("Source Passowrd");
-		lblSourcePassowrd.setBounds(50, 182, 120, 38);
+		lblSourcePassowrd.setBounds(50, 182, 144, 38);
 		frame.add(lblSourcePassowrd);
 
 		textField_3 = new JPasswordField();
@@ -99,7 +99,7 @@ public class Process1 {
 		frame.add(textField_3);
 
 		JLabel lblDestinationUsername = new JLabel("Destination Username");
-		lblDestinationUsername.setBounds(50, 389, 120, 38);
+		lblDestinationUsername.setBounds(50, 389, 144, 38);
 		frame.add(lblDestinationUsername);
 
 		textField_4 = new JTextField();
@@ -108,7 +108,7 @@ public class Process1 {
 		frame.add(textField_4);
 
 		JLabel lblDestinationPassowrd = new JLabel("Destination Passowrd");
-		lblDestinationPassowrd.setBounds(50, 440, 120, 38);
+		lblDestinationPassowrd.setBounds(50, 440, 144, 38);
 		frame.add(lblDestinationPassowrd);
 
 		textField_5 = new JPasswordField();
