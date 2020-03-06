@@ -1,5 +1,6 @@
 package com.esignlive.copytool.data;
 
+import java.net.Proxy;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class UserData {
 	
 	public static AccountVo destinationCredential = new AccountVo();
 	public static String destinationApiUrl;
-	
+	public static Proxy proxy;
 	
 	//1:copy all senders and match senders
 	//2:copy all senders create all by owner

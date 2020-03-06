@@ -50,7 +50,12 @@ public class SenderService {
 			try {
 				String url = UserData.sourceApiUrl + "/account/senders?from=" + pageIndex + "&to=" + (pageIndex + UserData.pageSize - 1);
 				URL client = new URL(url);
-				HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
+				HttpURLConnection conn;
+				if(UserData.proxy != null) {
+					conn = (HttpURLConnection) client.openConnection(UserData.proxy);
+				}else {
+					conn = (HttpURLConnection) client.openConnection();
+				}
 				conn.setRequestProperty("Content-Type", "application/json");
 				HttpURLConnectionUtil.addCredential(conn, UserData.sourceCredential);
 				conn.setRequestProperty("Accept", "application/json");
@@ -176,7 +181,12 @@ public class SenderService {
 				String url = UserData.destinationApiUrl + "/account/senders?from=" + pageIndex + "&to="
 						+ (pageIndex + UserData.pageSize - 1);
 				URL client = new URL(url);
-				HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
+				HttpURLConnection conn;
+				if(UserData.proxy != null) {
+					conn = (HttpURLConnection) client.openConnection(UserData.proxy);
+				}else {
+					conn = (HttpURLConnection) client.openConnection();
+				}
 				conn.setRequestProperty("Content-Type", "application/json");
 				HttpURLConnectionUtil.addCredential(conn, UserData.destinationCredential);
 				conn.setRequestProperty("Accept", "application/json");
@@ -317,7 +327,12 @@ public class SenderService {
 		SSLFix.execute();
 
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
+		HttpURLConnection sourceConn;
+		if(UserData.proxy != null) {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection(UserData.proxy);
+		}else {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		}
 		sourceConn.setRequestProperty("Content-Type", "application/json");
 		HttpURLConnectionUtil.addCredential(sourceConn, UserData.destinationCredential);
 		sourceConn.setRequestProperty("Accept", "application/json");
@@ -394,7 +409,12 @@ public class SenderService {
 		}
 
 		URL client = new URL(apiUrl + "/account/senders/" + senderId + "/apiKey");
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
+		HttpURLConnection conn;
+		if(UserData.proxy != null) {
+			conn = (HttpURLConnection) client.openConnection(UserData.proxy);
+		}else {
+			conn = (HttpURLConnection) client.openConnection();
+		}		
 		conn.setRequestProperty("Content-Type", "application/json");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
 		conn.setRequestProperty("Accept", "application/json");

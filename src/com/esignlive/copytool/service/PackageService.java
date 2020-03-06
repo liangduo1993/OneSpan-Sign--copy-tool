@@ -48,52 +48,56 @@ public class PackageService {
 	}
 
 	public JSONObject preparePackageMetadata(String packageId, AccountVo accountVo, String packageType)
-			throws Exception, JSONException {
-		// get template metadata
-		JSONObject newPackage = getPackageById(packageId, UserData.sourceCredential);
-		
-		System.out.println("template metadata: " + newPackage.toString());
-		
-		newPackage.put("sender", JSON.parseObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
-		newPackage.put("status", "DRAFT");
-		newPackage.put("due", null);
-		newPackage.remove("id");
-		newPackage.put("type", packageType);
-		// replace firstname,lastname,company,title for sender
-		JSONArray roleArray = newPackage.getJSONArray("roles");
-		for (int i = 0; i < roleArray.size(); i++) {
-			JSONObject roleJSON = roleArray.getJSONObject(i);
-
-			String signerType = roleJSON.getString("type");
-			if (signerType.equals("SENDER")) {
-				JSONObject signerJSON = roleJSON.getJSONArray("signers").getJSONObject(0);
-
-				List<String> keys = Arrays.asList("firstName", "lastName", "email", "company", "title");
-				for (String key : keys) {
-					try {
-						PackageService.getInstance().injectSenderPersonalInfo(signerJSON, accountVo, key);
-					} catch (Exception e) {
-						// to do
-						// add error msg
-						// continue
-					}
-				}
-				System.out.println("========");
-				System.out.println(accountVo.getSenderVo().getContent());
-				System.out.println(signerJSON.toString());
-				System.out.println("========");
-				break;
-			}
-		}
-		
-		//remove external attribute for documents
-		JSONArray documentArray = newPackage.getJSONArray("documents");
-		for (int i = 0; i < documentArray.size(); i++) {
-			JSONObject documentJSON = documentArray.getJSONObject(i);
-			documentJSON.put("external", null);
-		}
+			throws Exception{
+		try {
+			// get template metadata
+			JSONObject newPackage = getPackageById(packageId, UserData.sourceCredential);
 			
-		return newPackage;
+			System.out.println("template metadata: " + newPackage.toString());
+			
+			newPackage.put("sender", JSON.parseObject("{\"email\":\"" + accountVo.getSenderVo().getEmail() + "\"}"));
+			newPackage.put("status", "DRAFT");
+			newPackage.put("due", null);
+			newPackage.remove("id");
+			newPackage.put("type", packageType);
+			// replace firstname,lastname,company,title for sender
+			JSONArray roleArray = newPackage.getJSONArray("roles");
+			for (int i = 0; i < roleArray.size(); i++) {
+				JSONObject roleJSON = roleArray.getJSONObject(i);
+	
+				String signerType = roleJSON.getString("type");
+				if (signerType.equals("SENDER")) {
+					JSONObject signerJSON = roleJSON.getJSONArray("signers").getJSONObject(0);
+	
+					List<String> keys = Arrays.asList("firstName", "lastName", "email", "company", "title");
+					for (String key : keys) {
+						try {
+							PackageService.getInstance().injectSenderPersonalInfo(signerJSON, accountVo, key);
+						} catch (Exception e) {
+							// to do
+							// add error msg
+							// continue
+						}
+					}
+					System.out.println("========");
+					System.out.println(accountVo.getSenderVo().getContent());
+					System.out.println(signerJSON.toString());
+					System.out.println("========");
+					break;
+				}
+			}
+			
+			//remove external attribute for documents
+			JSONArray documentArray = newPackage.getJSONArray("documents");
+			for (int i = 0; i < documentArray.size(); i++) {
+				JSONObject documentJSON = documentArray.getJSONObject(i);
+				documentJSON.put("external", null);
+			}
+				
+			return newPackage;
+		}catch(Exception e) {
+			throw new RuntimeException("Fail to prepare Package Metadata!");
+		}
 	}
 
 	public List<DocumentVo> prepareDocument(JSONObject packageJSON, String oldPackageId) throws Exception {

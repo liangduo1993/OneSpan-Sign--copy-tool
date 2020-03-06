@@ -25,9 +25,6 @@ public class App {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-//		System.setProperty("https.proxyHost", "127.0.0.1");
-//		System.setProperty("https.proxyPort", "8888");
-		System.setProperty("java.net.useSystemProxies", "true");
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -54,7 +51,7 @@ public class App {
 		InputStream is = App.class.getResourceAsStream("/favicon.775850b.ico");
 		BufferedImage image = ImageIO.read(is);
 		mainFrame.setIconImage(image);
-		mainFrame.setTitle("OneSpan Sign - Template & Layout Copy Tool - v1.3.1");
+		mainFrame.setTitle("OneSpan Sign - Template & Layout Copy Tool - v1.4.0");
 		setMainFrame(new Process0().getFrame());
 	}
 

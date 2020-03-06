@@ -52,7 +52,14 @@ public class EndpointService {
 
 		System.out.println(url);
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
+		
+		HttpURLConnection sourceConn;
+		if(UserData.proxy != null) {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection(UserData.proxy);
+		}else {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		}
+		
 		sourceConn.setRequestProperty("Content-Type", "application/json");
 		HttpURLConnectionUtil.addCredential(sourceConn, accountVo);
 		sourceConn.setRequestProperty("Accept", "application/json");
@@ -96,7 +103,14 @@ public class EndpointService {
 			// generate session token
 			// to do
 			URL sourceClient = new URL(url);
-			HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
+			
+			HttpURLConnection sourceConn;
+			if(UserData.proxy != null) {
+				sourceConn = (HttpURLConnection) sourceClient.openConnection(UserData.proxy);
+			}else {
+				sourceConn = (HttpURLConnection) sourceClient.openConnection();
+			}
+			
 			sourceConn.setRequestProperty("Content-Type", "application/json");
 			sourceConn.setRequestProperty("Accept", "application/json");
 			sourceConn.setRequestMethod("POST");

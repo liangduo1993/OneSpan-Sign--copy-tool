@@ -40,7 +40,13 @@ public class RestService {
 		SSLFix.execute();
 
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
+		HttpURLConnection sourceConn;
+		if(UserData.proxy != null) {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection(UserData.proxy);
+		}else {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		}
+		
 		sourceConn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(sourceConn, UserData.destinationCredential);
 		sourceConn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");
@@ -73,7 +79,14 @@ public class RestService {
 		URL client = new URL(url);
 
 		byte[] byteArray;
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
+		
+		HttpURLConnection conn;
+		if(UserData.proxy != null) {
+			conn = (HttpURLConnection) client.openConnection(UserData.proxy);
+		}else {
+			conn = (HttpURLConnection) client.openConnection();
+		}
+		
 		conn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(conn, accountVo);
 		conn.setRequestProperty("Accept", "application/pdf; esl-api-version=11.21");
@@ -100,7 +113,12 @@ public class RestService {
 		SSLFix.execute();
 
 		URL client = new URL(url);
-		HttpURLConnection conn = (HttpURLConnection) client.openConnection(Proxy.NO_PROXY);
+		HttpURLConnection conn;
+		if(UserData.proxy != null) {
+			conn = (HttpURLConnection) client.openConnection(UserData.proxy);
+		}else {
+			conn = (HttpURLConnection) client.openConnection();
+		}
 		conn.setRequestProperty("Accept-Encoding","UTF-8");
 		conn.setRequestProperty("Accept-Charset","UTF-8");
 		
@@ -174,9 +192,13 @@ public class RestService {
 		String boundary = Long.toHexString(System.currentTimeMillis());
 		String CRLF = "\r\n"; // Line separator used in multipart/form-data.
 
-		HttpsURLConnection connection = null;
+		HttpURLConnection connection;
 		URL client = new URL(url);
-		connection = (HttpsURLConnection) client.openConnection(Proxy.NO_PROXY);
+		if(UserData.proxy != null) {
+			connection = (HttpURLConnection) client.openConnection(UserData.proxy);
+		}else {
+			connection = (HttpURLConnection) client.openConnection();
+		}
 		connection.setDoOutput(true);
 		connection.setDoInput(true);
 		connection.setRequestMethod("POST");
@@ -259,7 +281,12 @@ public class RestService {
 		SSLFix.execute();
 
 		URL sourceClient = new URL(url);
-		HttpURLConnection sourceConn = (HttpURLConnection) sourceClient.openConnection(Proxy.NO_PROXY);
+		HttpURLConnection sourceConn;
+		if(UserData.proxy != null) {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection(UserData.proxy);
+		}else {
+			sourceConn = (HttpURLConnection) sourceClient.openConnection();
+		}
 		sourceConn.setRequestProperty("Content-Type", "application/json; esl-api-version=11.21");
 		HttpURLConnectionUtil.addCredential(sourceConn, accountVo);
 		sourceConn.setRequestProperty("Accept", "application/json; esl-api-version=11.21");

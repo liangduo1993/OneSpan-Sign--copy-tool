@@ -52,6 +52,7 @@ public class TemplateService {
 
 					copySuccess = true;
 				} catch (Exception e) {
+					e.printStackTrace();
 					System.out.println(e.getMessage());
 					errorMsg.append(oldTemplateID + " : " + e.getMessage()).append("\n");
 				}

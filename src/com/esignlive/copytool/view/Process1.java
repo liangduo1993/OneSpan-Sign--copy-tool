@@ -2,7 +2,11 @@ package com.esignlive.copytool.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.nio.file.AccessMode;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -10,17 +14,19 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import com.btr.proxy.selector.pac.PacProxySelector;
+import com.btr.proxy.selector.pac.UrlPacScriptSource;
 import com.esignlive.copytool.App;
 import com.esignlive.copytool.data.UserData;
 import com.esignlive.copytool.service.EndpointService;
 import com.esignlive.copytool.utils.InstanceUtil;
 import com.esignlive.copytool.utils.StringUtil;
 import com.esignlive.copytool.vo.AccountVo;
-import javax.swing.JPasswordField;
 
 public class Process1 {
 
@@ -38,6 +44,7 @@ public class Process1 {
 	private JRadioButton destiAPIKeyButton;
 	private JRadioButton destCrenButton;
 	private JPasswordField passwordField;
+	private OSSProxyPanel ossProxyPanel;
 
 	/**
 	 * Create the application.
@@ -60,60 +67,60 @@ public class Process1 {
 		frame.setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Source API KEY:");
-		lblNewLabel.setBounds(50, 150, 144, 38);
+		lblNewLabel.setBounds(37, 90, 144, 38);
 		frame.add(lblNewLabel);
 
 		JLabel lblSourceEnvironment = new JLabel("Source Environment:");
-		lblSourceEnvironment.setBounds(50, 231, 144, 38);
+		lblSourceEnvironment.setBounds(37, 171, 144, 38);
 		frame.add(lblSourceEnvironment);
 
 		JLabel lblDestinationApiKey = new JLabel("Destination API KEY:");
-		lblDestinationApiKey.setBounds(50, 411, 144, 38);
+		lblDestinationApiKey.setBounds(37, 306, 144, 38);
 		frame.add(lblDestinationApiKey);
 
 		JLabel lblDestinationEnvironment = new JLabel("Destination Environment:");
-		lblDestinationEnvironment.setBounds(50, 492, 153, 38);
+		lblDestinationEnvironment.setBounds(37, 387, 153, 38);
 		frame.add(lblDestinationEnvironment);
 
 		textField = new JTextField();
-		textField.setBounds(213, 155, 326, 29);
+		textField.setBounds(200, 95, 326, 29);
 		frame.add(textField);
 		textField.setColumns(10);
 
 		JLabel lblSourceUsername = new JLabel("Source Username");
-		lblSourceUsername.setBounds(50, 131, 144, 38);
+		lblSourceUsername.setBounds(37, 71, 144, 38);
 		frame.add(lblSourceUsername);
 
 		textField_2 = new JTextField();
 		textField_2.setColumns(10);
-		textField_2.setBounds(213, 136, 326, 29);
+		textField_2.setBounds(200, 76, 326, 29);
 		frame.add(textField_2);
 
 		JLabel lblSourcePassowrd = new JLabel("Source Passowrd");
-		lblSourcePassowrd.setBounds(50, 182, 144, 38);
+		lblSourcePassowrd.setBounds(37, 122, 144, 38);
 		frame.add(lblSourcePassowrd);
 
 		textField_3 = new JPasswordField();
 		textField_3.setColumns(10);
-		textField_3.setBounds(213, 187, 326, 29);
+		textField_3.setBounds(200, 127, 326, 29);
 		frame.add(textField_3);
 
 		JLabel lblDestinationUsername = new JLabel("Destination Username");
-		lblDestinationUsername.setBounds(50, 389, 144, 38);
+		lblDestinationUsername.setBounds(37, 284, 144, 38);
 		frame.add(lblDestinationUsername);
 
 		textField_4 = new JTextField();
 		textField_4.setColumns(10);
-		textField_4.setBounds(213, 394, 326, 29);
+		textField_4.setBounds(200, 289, 326, 29);
 		frame.add(textField_4);
 
 		JLabel lblDestinationPassowrd = new JLabel("Destination Passowrd");
-		lblDestinationPassowrd.setBounds(50, 440, 144, 38);
+		lblDestinationPassowrd.setBounds(37, 335, 144, 38);
 		frame.add(lblDestinationPassowrd);
 
 		textField_5 = new JPasswordField();
 		textField_5.setColumns(10);
-		textField_5.setBounds(213, 445, 326, 29);
+		textField_5.setBounds(200, 340, 326, 29);
 		frame.add(textField_5);
 
 		JProgressBar progressBar = new JProgressBar();
@@ -127,17 +134,17 @@ public class Process1 {
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
-		comboBox.setBounds(213, 228, 286, 38);
+		comboBox.setBounds(200, 168, 286, 38);
 		frame.add(comboBox);
 
 		textField_1 = new JTextField();
 		textField_1.setColumns(10);
-		textField_1.setBounds(213, 411, 326, 29);
+		textField_1.setBounds(200, 306, 326, 29);
 		frame.add(textField_1);
 
 		JComboBox comboBox_1 = new JComboBox();
 		comboBox_1.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
-		comboBox_1.setBounds(213, 484, 286, 38);
+		comboBox_1.setBounds(200, 379, 286, 38);
 		frame.add(comboBox_1);
 
 		JButton btnNextProcess = new JButton("Next Process");
@@ -147,7 +154,7 @@ public class Process1 {
 				App.setMainFrame(new Process2().getFrame());
 			}
 		});
-		btnNextProcess.setBounds(511, 578, 152, 38);
+		btnNextProcess.setBounds(459, 603, 152, 38);
 		frame.add(btnNextProcess);
 
 		btnNewButton = new JButton("Test Connection");
@@ -191,11 +198,44 @@ public class Process1 {
 								UserData.destinationCredential.setPassword(textField_5.getText().trim());
 							}
 
+							
+							
+							//proxy settings
+							if(ossProxyPanel.rdbtnProxyAutomaticScript.isSelected() && !StringUtil.isEmpty(ossProxyPanel.proxyScript.getText())) {
+								UrlPacScriptSource source = new UrlPacScriptSource(ossProxyPanel.proxyScript.getText());
+								PacProxySelector proxySelector = new PacProxySelector(source);
+								ProxySelector.setDefault(proxySelector);
+
+								URI home = URI.create(InstanceUtil.getUrlByKey((String) comboBox.getSelectedItem()));
+								System.out.println("ProxySelector: " + proxySelector);
+								System.out.println("URI: " + home);
+								List<Proxy> proxyList = proxySelector.select(home);
+								if (proxyList != null && !proxyList.isEmpty()) {
+									for (Proxy proxy : proxyList) {
+										System.out.println(proxy);
+										UserData.proxy = proxy;
+									}
+								}
+							}else if(ossProxyPanel.rdbtnProxyHost.isSelected() && !StringUtil.isEmpty(ossProxyPanel.proxyAddress.getText()) && !StringUtil.isEmpty(ossProxyPanel.proxyPort.getText())){
+								try {
+									UserData.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ossProxyPanel.proxyAddress.getText(), Integer.parseInt(ossProxyPanel.proxyPort.getText())));
+								}catch(Exception e) {
+									
+								}
+							}
+							
+							
+							
 							EndpointService.getInstance().testConnection();
 							btnNextProcess.setEnabled(true);
 
+							String returnMsg = "API Keys are all valid!";
+							if(UserData.proxy!=null) {
+								returnMsg += " Connect through Proxy: " + UserData.proxy.toString();
+							}
+							
 							// show success dialog
-							JOptionPane.showMessageDialog(frame, "API Keys are all valid!", "Connection test success",
+							JOptionPane.showMessageDialog(frame, returnMsg, "Connection test success",
 									JOptionPane.INFORMATION_MESSAGE);
 							
 						} catch (Exception exception) {
@@ -214,7 +254,7 @@ public class Process1 {
 			}
 
 		});
-		btnNewButton.setBounds(163, 578, 144, 38);
+		btnNewButton.setBounds(117, 603, 144, 38);
 		frame.add(btnNewButton);
 
 		rdbtnWithApiKey = new JRadioButton("With API KEY");
@@ -234,7 +274,7 @@ public class Process1 {
 				}
 			}
 		});
-		rdbtnWithApiKey.setBounds(61, 85, 200, 50);
+		rdbtnWithApiKey.setBounds(48, 25, 200, 50);
 
 		frame.add(rdbtnWithApiKey);
 
@@ -255,7 +295,7 @@ public class Process1 {
 				}
 			}
 		});
-		rdbtnWithCredentials.setBounds(299, 82, 200, 50);
+		rdbtnWithCredentials.setBounds(286, 22, 200, 50);
 		frame.add(rdbtnWithCredentials);
 
 		destiAPIKeyButton = new JRadioButton("With API KEY");
@@ -275,7 +315,7 @@ public class Process1 {
 				}
 			}
 		});
-		destiAPIKeyButton.setBounds(61, 344, 200, 50);
+		destiAPIKeyButton.setBounds(48, 239, 200, 50);
 
 		frame.add(destiAPIKeyButton);
 
@@ -296,10 +336,12 @@ public class Process1 {
 				}
 			}
 		});
-		destCrenButton.setBounds(299, 341, 200, 50);
+		destCrenButton.setBounds(286, 236, 200, 50);
 		frame.add(destCrenButton);
 		
-	
+		ossProxyPanel = new OSSProxyPanel();
+		ossProxyPanel.setBounds(33, 422, ossProxyPanel.getWidth(), ossProxyPanel.getHeight());
+		frame.add(ossProxyPanel);
 
 		// choose api key as credential by default
 		destiAPIKeyButton.doClick();
