@@ -51,7 +51,7 @@ public class App {
 		InputStream is = App.class.getResourceAsStream("/favicon.775850b.ico");
 		BufferedImage image = ImageIO.read(is);
 		mainFrame.setIconImage(image);
-		mainFrame.setTitle("OneSpan Sign - Template & Layout Copy Tool - v1.4.0");
+		mainFrame.setTitle("OneSpan Sign - Template & Layout Copy Tool - v1.5.1");
 		setMainFrame(new Process0().getFrame());
 	}
 

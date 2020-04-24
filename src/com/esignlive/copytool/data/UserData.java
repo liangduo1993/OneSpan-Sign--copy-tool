@@ -10,10 +10,12 @@ import com.esignlive.copytool.vo.LayoutVo;
 import com.esignlive.copytool.vo.TemplateVo;
 
 public class UserData {
+	public static String sourceBaseUrl;
 	public static String sourceApiUrl;
 	public static AccountVo sourceCredential = new AccountVo();
 	
 	public static AccountVo destinationCredential = new AccountVo();
+	public static String destinationBaseUrl;
 	public static String destinationApiUrl;
 	public static Proxy proxy;
 	
@@ -33,5 +35,16 @@ public class UserData {
 	public static Map<String, String> originalDocumentMap = new LinkedHashMap<>();// <document name, document path>
 
 	public static final int pageSize = 100;
+	
+	public static void setSourceUrl(String baseUrl) {
+		sourceBaseUrl = baseUrl;
+		sourceApiUrl = baseUrl + "api";
+	}
+	
+	public static void setDestUrl(String baseUrl) {
+		destinationBaseUrl = baseUrl;
+		destinationApiUrl = baseUrl + "api";
+	}
+	
 	
 }

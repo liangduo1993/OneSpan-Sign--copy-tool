@@ -34,9 +34,9 @@ public class EndpointService {
 		try {
 			System.out.println(sourceAccountVo);
 			// according to apikey/credential, inject AccountVo
-			setCredential(UserData.sourceApiUrl.subSequence(0, UserData.sourceApiUrl.lastIndexOf("/api")) + "/a/auth",
+			setCredential(UserData.sourceBaseUrl + "/auth",
 					sourceAccountVo);
-			setCredential(UserData.destinationApiUrl.subSequence(0, UserData.destinationApiUrl.lastIndexOf("/api")) + "/a/auth",
+			setCredential(UserData.destinationBaseUrl + "/auth",
 					destinationAccountVo);
 
 			// try getting sys info

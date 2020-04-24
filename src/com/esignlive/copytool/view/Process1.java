@@ -45,6 +45,8 @@ public class Process1 {
 	private JRadioButton destCrenButton;
 	private JPasswordField passwordField;
 	private OSSProxyPanel ossProxyPanel;
+	private JTextField source_onprem;
+	private JTextField dest_onprem;
 
 	/**
 	 * Create the application.
@@ -133,6 +135,18 @@ public class Process1 {
 		frame.add(progressBarLabel);
 
 		JComboBox comboBox = new JComboBox();
+		comboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//""---- Specify the Environment ----""
+				String selection = (String) comboBox.getSelectedItem();
+				if(selection.equals("---- Specify the Environment ----")) {
+					source_onprem.setVisible(true);
+				}else {
+					source_onprem.setVisible(false);
+				}
+				
+			}
+		});
 		comboBox.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
 		comboBox.setBounds(200, 168, 286, 38);
 		frame.add(comboBox);
@@ -146,6 +160,17 @@ public class Process1 {
 		comboBox_1.setModel(new DefaultComboBoxModel(InstanceUtil.endPointList.keySet().toArray()));
 		comboBox_1.setBounds(200, 379, 286, 38);
 		frame.add(comboBox_1);
+		comboBox_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//""---- Specify the Environment ----""
+				String selection = (String) comboBox_1.getSelectedItem();
+				if(selection.equals("---- Specify the Environment ----")) {
+					dest_onprem.setVisible(true);
+				}else {
+					dest_onprem.setVisible(false);
+				}
+			}
+		});
 
 		JButton btnNextProcess = new JButton("Next Process");
 		btnNextProcess.setEnabled(false);
@@ -173,11 +198,29 @@ public class Process1 {
 							System.out.println((String) comboBox.getSelectedItem());
 							System.out.println(textField_1.getText());
 							System.out.println((String) comboBox_1.getSelectedItem());
-							UserData.sourceApiUrl = InstanceUtil.getUrlByKey((String) comboBox.getSelectedItem());
-							UserData.destinationApiUrl = InstanceUtil
-									.getUrlByKey((String) comboBox_1.getSelectedItem());
+							
+							String sourceBaseUrl = "";
+							String destBaseUrl = "";
+							String sourceSelection = (String) comboBox.getSelectedItem();
+							if(sourceSelection.equals("---- Specify the Environment ----")) {
+								sourceBaseUrl = source_onprem.getText().trim() + "/";
+							}else {
+								sourceBaseUrl = InstanceUtil.getUrlByKey(sourceSelection);
+							}
+							
+							String destSelection = (String) comboBox_1.getSelectedItem();
+							if(destSelection.equals("---- Specify the Environment ----")) {
+								destBaseUrl = dest_onprem.getText().trim() + "/";
+							}else {
+								destBaseUrl = InstanceUtil.getUrlByKey(destSelection);
+							}
+							UserData.setSourceUrl(sourceBaseUrl);
+							UserData.setDestUrl(destBaseUrl);
+
+							
 							System.out.println(UserData.sourceApiUrl);
 							System.out.println(UserData.destinationApiUrl);
+							
 							
 							if (!StringUtil.isEmpty(textField.getText())) {
 								UserData.sourceCredential.setApiKey(textField.getText().trim());
@@ -342,6 +385,19 @@ public class Process1 {
 		ossProxyPanel = new OSSProxyPanel();
 		ossProxyPanel.setBounds(33, 422, ossProxyPanel.getWidth(), ossProxyPanel.getHeight());
 		frame.add(ossProxyPanel);
+		
+		source_onprem = new JTextField();
+		source_onprem.setColumns(10);
+		source_onprem.setBounds(496, 171, 272, 29);
+		source_onprem.setVisible(false);
+		frame.add(source_onprem);
+		
+		dest_onprem = new JTextField();
+		dest_onprem.setColumns(10);
+		dest_onprem.setBounds(496, 382, 272, 29);
+		dest_onprem.setVisible(false);
+
+		frame.add(dest_onprem);
 
 		// choose api key as credential by default
 		destiAPIKeyButton.doClick();
